@@ -1,6 +1,7 @@
 [package]
 name = "fzn2lp"
-version = "0.1.0pre"
+version = "0.1.0"
+publish = false
 authors = ["Sven Thiele <sthiele78@gmail.com>"]
 description = "A FlatZinc to AnsProlog converter"
 readme = "README.md"
