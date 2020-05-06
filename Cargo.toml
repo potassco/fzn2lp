@@ -1,6 +1,6 @@
 [package]
 name = "fzn2lp"
-version = "0.1.0"
+version = "0.1.0pre"
 authors = ["Sven Thiele <sthiele78@gmail.com>"]
 description = "A FlatZinc to AnsProlog converter"
 readme = "README.md"
@@ -11,6 +11,6 @@ exclude = ["/.github"]
 
 [dependencies]
 nom = "5.1"
-flatzinc = "0.1"
+flatzinc = { path = "../flatzinc" }
 structopt = "0.3"
 anyhow = "1.0"
