@@ -64,7 +64,7 @@ fn print_par_decl_item(p: &ParDeclItem) {
             id,
             expr,
         } => {
-            let array_elements = array_expr(expr);
+            let array_elements = par_expr_array_expr(expr);
             println!(
                 "parameter(array({},{}), id_{}).",
                 index(ix),
@@ -165,27 +165,18 @@ fn basic_par_type(t: &BasicParType) -> String {
 fn index(IndexSet(i): &IndexSet) -> String {
     format!("{}", i)
 }
-fn expr(e: &Expr) -> String {
-    match e {
-        Expr::ArrayLiteral(a) => format!(
-            "array()
-# TODO ARRAY LITERAL in constraint"
-        ),
-        Expr::BasicExpr(e) => basic_expr(&e),
-    }
-}
-fn array_expr(e: &ParExpr) -> &[BasicLiteralExpr] {
+fn par_expr_array_expr(e: &ParExpr) -> &[BasicLiteralExpr] {
     match e {
         ParExpr::ParArrayLiteral(v) => v,
-        ParExpr::BasicLiteralExpr(l) => panic!(
-            "I think this should be an array, but its a basic-literal-expr! Maybe use par_expr"
+        ParExpr::BasicLiteralExpr(_l) => panic!(
+            "I think this should be an array, but its a basic-literal-expr! Maybe use par_expr?"
         ),
     }
 }
 fn par_expr_basic_literal_expr(e: &ParExpr) -> String {
     match e {
-        ParExpr::ParArrayLiteral(v) => panic!(
-            "I think this should be a basic-literal-expr, but its an array! Maybe use par_expr"
+        ParExpr::ParArrayLiteral(_v) => panic!(
+            "I think this should be a basic-literal-expr, but its an array! Maybe use par_expr?"
         ),
         ParExpr::BasicLiteralExpr(l) => basic_literal_expr(l),
     }
