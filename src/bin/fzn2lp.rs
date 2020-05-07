@@ -56,49 +56,54 @@ fn print_par_decl_item(p: &ParDeclItem) {
             "parameter({}, {},id_{}).",
             basic_par_type(&par_type),
             id,
-            par_expr(expr)
+            par_expr_basic_literal_expr(expr)
         ),
         ParDeclItem::Array {
             ix,
             par_type,
             id,
             expr,
-        } => print!(
-            "parameter(array({},{}), id_{},{}).",
-            index(ix),
-            basic_par_type(&par_type),
-            id,
-            par_expr(expr)
-        ),
+        } => {
+            let array_elements = array_expr(expr);
+            println!(
+                "parameter(array({},{}), id_{}).",
+                index(ix),
+                basic_par_type(&par_type),
+                id
+            );
+            let mut pos = 0;
+            for e in array_elements {
+                println!("in_array(id_{},{},{}).", id, pos, basic_literal_expr(e));
+                pos += 1;
+            }
+        }
     }
 }
 fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
     match d {
         VarDeclItem::Array(ix, t, id, annos, v) => {
-            let mut x = String::new();
-            for e in v {
-                if x.is_empty() {
-                    x = format!("{}", basic_expr(e));
-                } else {
-                    x = format!("{},{}", x, basic_expr(e));
-                }
-            }
-            // panic!(
-            //     "# TODO ARRAY LITERAL in variable declaration
-            //     \n- annos: {:#?}
-            //     \n- expressions: {:#?}",
-            //     annos, x
-            // );
             println!(
-                "variable(array({},{}),id_{}).
-# TODO ARRAY LITERAL in variable declaration",
+                "variable(array({},{}),id_{}).",
                 index(ix),
                 basic_var_type(t),
                 id,
             );
+            let mut pos = 0;
+            for e in v {
+                println!("in_array(id_{},{},{}).", id, pos, basic_expr(e));
+                pos += 1;
+            }
         }
-        VarDeclItem::Basic(t, id, annos, e) => {
+        VarDeclItem::Basic(t, id, annos, None) => {
             println!("variable({},id_{}).", basic_var_type(t), id);
+        }
+        VarDeclItem::Basic(t, id, annos, Some(e)) => {
+            println!(
+                "variable({},id_{},{}).",
+                basic_var_type(t),
+                id,
+                basic_expr(e)
+            );
         }
     }
 }
@@ -122,8 +127,28 @@ fn domain(d: &Domain) -> String {
 
 fn print_constraint(c: &ConstraintItem) {
     println!("constraint(id_{})", c.id);
-    for e in &c.exprs {
-        println!("in_constraint(id_{},{}).", c.id, expr(&e))
+    let mut cpos = 0;
+    for ce in &c.exprs {
+        match ce {
+            Expr::BasicExpr(e) => {
+                println!("in_constraint(id_{},{},{}).", c.id, cpos, basic_expr(&e))
+            }
+            Expr::ArrayLiteral(v) => {
+                println!("in_constraint(id_{},{},array).", c.id, cpos);
+                let mut apos = 0;
+                for ae in v {
+                    println!(
+                        "in_constraint({},{},{},{}).",
+                        c.id,
+                        cpos,
+                        apos,
+                        basic_expr(&ae)
+                    );
+                    apos += 1;
+                }
+            }
+        }
+        cpos += 1;
     }
 }
 fn print_solve_item(i: &SolveItem) {
@@ -149,27 +174,38 @@ fn expr(e: &Expr) -> String {
         Expr::BasicExpr(e) => basic_expr(&e),
     }
 }
-fn par_expr(e: &ParExpr) -> String {
+fn array_expr(e: &ParExpr) -> &[BasicLiteralExpr] {
     match e {
-        ParExpr::ParArrayLiteral(v) => {
-            let mut x = String::new();
-            for e in v {
-                if x.is_empty() {
-                    x = format!("{}", basic_literal_expr(e));
-                } else {
-                    x = format!("{},{}", x, basic_literal_expr(e));
-                }
-            }
-            format!(
-                "array()
-# TODO ARRAY LITERAL in parameter declaration
-            \n- expresions: {}",
-                x
-            )
-        }
+        ParExpr::ParArrayLiteral(v) => v,
+        ParExpr::BasicLiteralExpr(l) => panic!(
+            "I think this should be an array, but its a basic-literal-expr! Maybe use par_expr"
+        ),
+    }
+}
+fn par_expr_basic_literal_expr(e: &ParExpr) -> String {
+    match e {
+        ParExpr::ParArrayLiteral(v) => panic!(
+            "I think this should be a basic-literal-expr, but its an array! Maybe use par_expr"
+        ),
         ParExpr::BasicLiteralExpr(l) => basic_literal_expr(l),
     }
 }
+// fn par_expr(e: &ParExpr) -> (String, String) {
+//     match e {
+//         ParExpr::ParArrayLiteral(v) => {
+//             let mut x = String::new();
+//             for e in v {
+//                 if x.is_empty() {
+//                     x = format!("in_array({},{},{})", basic_literal_expr(e));
+//                 } else {
+//                     x = format!("{},{}", x, basic_literal_expr(e));
+//                 }
+//             }
+//             ("array".into(), x)
+//         }
+//         ParExpr::BasicLiteralExpr(l) => (basic_literal_expr(l), String::new()),
+//     }
+// }
 
 fn basic_expr(e: &BasicExpr) -> String {
     match e {
