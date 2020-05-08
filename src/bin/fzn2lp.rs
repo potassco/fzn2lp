@@ -71,10 +71,8 @@ fn print_par_decl_item(p: &ParDeclItem) {
                 basic_par_type(&par_type),
                 id
             );
-            let mut pos = 0;
-            for e in array_elements {
+            for (pos, e) in array_elements.iter().enumerate() {
                 println!("in_array(id_{},{},{}).", id, pos, basic_literal_expr(e));
-                pos += 1;
             }
         }
     }
@@ -88,10 +86,8 @@ fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
                 basic_var_type(t),
                 id,
             );
-            let mut pos = 0;
-            for e in v {
+            for (pos, e) in v.iter().enumerate() {
                 println!("in_array(id_{},{},{}).", id, pos, basic_expr(e));
-                pos += 1;
             }
         }
         VarDeclItem::Basic(t, id, annos, None) => {
@@ -109,10 +105,10 @@ fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
 }
 fn basic_var_type(t: &BasicVarType) -> String {
     match t {
-        BasicVarType::Bool => format!("bool"),
-        BasicVarType::Domain(d) => format!("{}", domain(d)),
-        BasicVarType::Float => format!("float"),
-        BasicVarType::Int => format!("int"),
+        BasicVarType::Bool => "bool".to_string(),
+        BasicVarType::Domain(d) => domain(d),
+        BasicVarType::Float => "float".to_string(),
+        BasicVarType::Int => "int".to_string(),
     }
 }
 fn domain(d: &Domain) -> String {
@@ -127,16 +123,14 @@ fn domain(d: &Domain) -> String {
 
 fn print_constraint(c: &ConstraintItem) {
     println!("constraint(id_{})", c.id);
-    let mut cpos = 0;
-    for ce in &c.exprs {
+    for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
             Expr::BasicExpr(e) => {
                 println!("in_constraint(id_{},{},{}).", c.id, cpos, basic_expr(&e))
             }
             Expr::ArrayLiteral(v) => {
                 println!("in_constraint(id_{},{},array).", c.id, cpos);
-                let mut apos = 0;
-                for ae in v {
+                for (apos, ae) in v.iter().enumerate() {
                     println!(
                         "in_constraint({},{},{},{}).",
                         c.id,
@@ -144,11 +138,9 @@ fn print_constraint(c: &ConstraintItem) {
                         apos,
                         basic_expr(&ae)
                     );
-                    apos += 1;
                 }
             }
         }
-        cpos += 1;
     }
 }
 fn print_solve_item(i: &SolveItem) {
@@ -156,10 +148,10 @@ fn print_solve_item(i: &SolveItem) {
 }
 fn basic_par_type(t: &BasicParType) -> String {
     match t {
-        BasicParType::Bool => format!("bool"),
-        BasicParType::Float => format!("float"),
-        BasicParType::Int => format!("int"),
-        BasicParType::SetOfInt => format!("set_of_int"),
+        BasicParType::Bool => "bool".to_string(),
+        BasicParType::Float => "float".to_string(),
+        BasicParType::Int => "int".to_string(),
+        BasicParType::SetOfInt => "set_of_int".to_string(),
     }
 }
 fn index(IndexSet(i): &IndexSet) -> String {
@@ -209,15 +201,15 @@ fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
         BasicLiteralExpr::BoolLiteral(b) => format!("{}", b),
         BasicLiteralExpr::FloatLiteral(f) => format!("{}", f),
         BasicLiteralExpr::IntLiteral(i) => format!("{}", i),
-        BasicLiteralExpr::SetLiteral(s) => format!("{}", set_literal(s)),
+        BasicLiteralExpr::SetLiteral(s) => set_literal(s),
     }
 }
 fn set_literal(l: &SetLiteral) -> String {
     match l {
         SetLiteral::FloatRange(f1, f2) => format!("range_i({},{})", f1, f2),
         SetLiteral::IntRange(i1, i2) => format!("range_i({},{})", i1, i2),
-        SetLiteral::SetFloats(v) => format!("{}", set_floats(v)),
-        SetLiteral::SetInts(v) => format!("{}", set_ints(v)),
+        SetLiteral::SetFloats(v) => set_floats(v),
+        SetLiteral::SetInts(v) => set_ints(v),
     }
 }
 fn set_floats(v: &[f64]) -> String {
