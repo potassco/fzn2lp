@@ -109,13 +109,14 @@ fn basic_var_type(t: &BasicVarType) -> String {
         BasicVarType::Domain(d) => domain(d),
         BasicVarType::Float => "float".to_string(),
         BasicVarType::Int => "int".to_string(),
+        BasicVarType::VarSetOFInt => "set_of_int".to_string(),
     }
 }
 fn domain(d: &Domain) -> String {
     match d {
         Domain::FloatRange(f1, f2) => format!("range_f({},{})", f1, f2),
         Domain::IntRange(i1, i2) => format!("range_i({},{})", i1, i2),
-        Domain::SetInt(v) => format!("TODO SET INT"),
+        Domain::SetInt(v) => format!("TODO NON_EMPTY SET INT"),
         Domain::SetIntNonEmpty(v) => format!("TODO NON_EMPTY SET INT"),
         Domain::SetIntRange(i1, i2) => format!("set_int_range({},{})", i1, i2),
     }
