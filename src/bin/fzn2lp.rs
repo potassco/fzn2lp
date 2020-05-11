@@ -1,8 +1,10 @@
 use anyhow::Result;
 use flatzinc::*;
+use log::error;
 use nom::error::{convert_error, VerboseError};
 use nom::Err;
 use std::path::PathBuf;
+use stderrlog;
 use structopt::StructOpt;
 
 /// Convert FlatZinc to AnsProlog facts
@@ -15,15 +17,21 @@ struct Opt {
 }
 
 fn main() -> Result<()> {
+    stderrlog::new()
+        .module(module_path!())
+        .verbosity(2)
+        .init()
+        .unwrap();
+
     let opt = Opt::from_args();
     let buf = std::fs::read_to_string(opt.file)?;
     match flatzinc::model::<VerboseError<&str>>(&buf) {
         Ok((_, result)) => fzn2lp(&result),
 
         Err(Err::Error(e)) | Err(Err::Failure(e)) => {
-            println!("Failed to parse flatzinc!\n{}", convert_error(&buf, e))
+            error!("Failed to parse flatzinc!\n{}", convert_error(&buf, e))
         }
-        Err(e) => println!("Failed to parse flatzinc: {:?}", e),
+        Err(e) => error!("Failed to parse flatzinc: {:?}", e),
     }
     Ok(())
 }
