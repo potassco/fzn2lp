@@ -153,7 +153,11 @@ fn print_constraint(c: &ConstraintItem) {
     }
 }
 fn print_solve_item(i: &SolveItem) {
-    println!("solve{:?}", i);
+    match &i.goal {
+        Goal::Satisfy => println!("solve(satisfy)."),
+        Goal::Maximize(e) => println!("solve(maximize,{}).", basic_expr(&e)),
+        Goal::Minimize(e) => println!("solve(minimize,{}).", basic_expr(&e)),
+    }
 }
 fn basic_par_type(t: &BasicParType) -> String {
     match t {
