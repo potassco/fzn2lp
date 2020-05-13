@@ -51,17 +51,32 @@ fn fzn2lp(model: &flatzinc::Model) {
     }
     print_solve_item(&model.solve_item)
 }
-fn print_predicate(p: &PredicateItem) {
-    println!("predicate({:?}", p.id);
-    for p in &p.parameters {
-        print!(",{:?}", p);
+fn print_predicate(pred: &PredicateItem) {
+    println!("predicate(id_{}).", pred.id);
+    for (pos, p) in pred.parameters.iter().enumerate() {
+        match p {
+            (PredParType::Basic(t), id) => println!(
+                "predicate_parameter({},{},{},{}).",
+                pred.id,
+                pos,
+                basic_pred_par_type(&t),
+                id
+            ),
+            (PredParType::Array(i, t), id) => println!(
+                "predicate_parameter({},{},array({},{}),{}).",
+                pred.id,
+                pos,
+                pred_index(&i),
+                basic_pred_par_type(&t),
+                id
+            ),
+        }
     }
-    println!(").");
 }
 fn print_par_decl_item(p: &ParDeclItem) {
     match p {
-        ParDeclItem::BasicParType { par_type, id, expr } => print!(
-            "parameter({}, {},id_{}).",
+        ParDeclItem::Basic { par_type, id, expr } => print!(
+            "parameter({}, id_{},{}).",
             basic_par_type(&par_type),
             id,
             par_expr_basic_literal_expr(expr)
@@ -120,12 +135,19 @@ fn basic_var_type(t: &BasicVarType) -> String {
         BasicVarType::VarSetOFInt => "set_of_int".to_string(),
     }
 }
+// TODO implement sets
 fn domain(d: &Domain) -> String {
     match d {
         Domain::FloatRange(f1, f2) => format!("range_f({},{})", f1, f2),
         Domain::IntRange(i1, i2) => format!("range_i({},{})", i1, i2),
-        Domain::SetInt(v) => format!("TODO NON_EMPTY SET INT"),
-        Domain::SetIntNonEmpty(v) => format!("TODO NON_EMPTY SET INT"),
+        Domain::SetInt(v) => {
+            error!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
+            panic!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
+        }
+        Domain::SetIntNonEmpty(v) => {
+            error!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
+            panic!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
+        }
         Domain::SetIntRange(i1, i2) => format!("set_int_range({},{})", i1, i2),
     }
 }
@@ -167,8 +189,21 @@ fn basic_par_type(t: &BasicParType) -> String {
         BasicParType::SetOfInt => "set_of_int".to_string(),
     }
 }
+fn basic_pred_par_type(t: &BasicPredParType) -> String {
+    match t {
+        BasicPredParType::BasicParType(t) => basic_par_type(t),
+        BasicPredParType::BasicVarType(t) => basic_var_type(t),
+        BasicPredParType::Domain(d) => domain(d),
+    }
+}
 fn index(IndexSet(i): &IndexSet) -> String {
     format!("{}", i)
+}
+fn pred_index(is: &PredIndexSet) -> String {
+    match is {
+        PredIndexSet::IndexSet(i) => index(&i),
+        PredIndexSet::Int => "int".to_string(),
+    }
 }
 fn par_expr_array_expr(e: &ParExpr) -> &[BasicLiteralExpr] {
     match e {
