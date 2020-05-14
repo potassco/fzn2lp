@@ -262,9 +262,9 @@ fn basic_expr(e: &BasicExpr) -> String {
 }
 fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
     match e {
-        BasicLiteralExpr::Bool(b) => format!("{}", b),
-        BasicLiteralExpr::Float(f) => format!("{}", f),
-        BasicLiteralExpr::Int(i) => format!("{}", i),
+        BasicLiteralExpr::Bool(b) => b.to_string(),
+        BasicLiteralExpr::Float(f) => f.to_string(),
+        BasicLiteralExpr::Int(i) => i.to_string(),
         BasicLiteralExpr::Set(s) => set_literal(s),
     }
 }
@@ -280,7 +280,7 @@ fn set_floats(v: &[f64]) -> String {
     let mut x = String::new();
     for f in v {
         if x.is_empty() {
-            x = format!("{}", f);
+            x = f.to_string();
         } else {
             x = format!("{},{}", x, f);
         }
@@ -291,7 +291,7 @@ fn set_ints(v: &[i128]) -> String {
     let mut x = String::new();
     for f in v {
         if x.is_empty() {
-            x = format!("{}", f);
+            x = f.to_string();
         } else {
             x = format!("{},{}", x, f);
         }
