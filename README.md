@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/sthiele/fzn2lp/workflows/CI%20Test/badge.svg)](https://github.com/sthiele/fzn2lp)
+
 # fzn2lp
 
 ## Predicate declarations
