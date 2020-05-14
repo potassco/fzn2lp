@@ -179,7 +179,7 @@ fn print_constraint(c: &ConstraintItem) {
                 println!("in_constraint(id_{},{},array).", c.id, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "in_constraint({},{},{},{}).",
+                        "in_constraint(id_{},{},{},{}).",
                         c.id,
                         cpos,
                         apos,

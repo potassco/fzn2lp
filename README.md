@@ -68,7 +68,7 @@ For the representation of the array see *Representation of arrays*
 
 Variable declarations are presented by facts of form:
 
-    variable(VariableType,Variablename).
+    variable(VariableType,VariableName).
 
 For Example:
 
@@ -77,7 +77,6 @@ For Example:
 is represented as:
 
     variable(bool,id_X_35).
-
 
 Other variable types are `int` and `float` ...
 
@@ -111,3 +110,43 @@ For example:
     in_array(id_Y, 0, id_Y_0).
     in_array(id_Y, 1, id_Y_1).
     in_array(id_Y, 2, id_Y_2).
+
+## Representation of constraints
+
+Constraints are presented by facts of form:
+
+    constraint(ConstraintId).
+    in_constraint(ConstraintId,Pos,Expr).
+
+If the constraint parmeter is of type array the following predicate is used to represent the elements of the array.
+
+    in_constraint(ConstraintId,Pos,array).
+    in_constraint(ConstraintId,Pos,ArrayPos,Expr).
+
+For Example:
+
+    constraint array_bool_or([X_35,X__36],true);
+
+is represented as:
+
+    constraint(id_array_bool_or)
+    in_constraint(id_array_bool_or,0,array).
+    in_constraint(id_array_bool_or,0,0,id_X_35).
+    in_constraint(id_array_bool_or,0,1,id_X_36).
+    in_constraint(id_array_bool_or,1,true).
+
+## Solve statement
+
+The solve statement is represented by one fact of the following form:
+
+    solve(satisfy).
+    solve(maximize,Expr).
+    solve(minimize,Expr).
+
+For Example:
+
+    solve minimize X_24;
+
+is represented as:
+
+    solve(minimize,id_X_24).
