@@ -2,6 +2,10 @@
 
 # fzn2lp
 
+## Download
+
+Binaries for 64bit linux and macOS can be found on the [release page](https://github.com/sthiele/fzn2lp/releases/latest).
+
 ## Predicate declarations
 
 Predicate declarations are presented by facts of form:
