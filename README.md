@@ -6,6 +6,15 @@
 
 Binaries for 64bit linux and macOS can be found on the [release page](https://github.com/sthiele/fzn2lp/releases/latest).
 
+## Compile yourself
+
+Clone the git repository:
+
+    git clone https://github.com/sthiele/fzn2lp.git
+    cargo build --release
+
+The executables can be found under `./target/release/`
+
 ## Predicate declarations
 
 Predicate declarations are presented by facts of form:
