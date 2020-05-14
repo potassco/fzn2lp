@@ -55,19 +55,19 @@ fn print_predicate(pred: &PredicateItem) {
     println!("predicate(id_{}).", pred.id);
     for (pos, p) in pred.parameters.iter().enumerate() {
         match p {
-            (PredParType::Basic(t), id) => println!(
+            (PredParType::Basic(par_type), id) => println!(
                 "predicate_parameter({},{},{},{}).",
                 pred.id,
                 pos,
-                basic_pred_par_type(&t),
+                basic_pred_par_type(&par_type),
                 id
             ),
-            (PredParType::Array(i, t), id) => println!(
+            (PredParType::Array { ix, par_type }, id) => println!(
                 "predicate_parameter({},{},array({},{}),{}).",
                 pred.id,
                 pos,
-                pred_index(&i),
-                basic_pred_par_type(&t),
+                pred_index(&ix),
+                basic_pred_par_type(&par_type),
                 id
             ),
         }
@@ -102,24 +102,40 @@ fn print_par_decl_item(p: &ParDeclItem) {
 }
 fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
     match d {
-        VarDeclItem::Array(ix, t, id, annos, v) => {
+        VarDeclItem::Array {
+            ix,
+            var_type,
+            id,
+            annos,
+            array_literal,
+        } => {
             println!(
                 "variable(array({},{}),id_{}).",
                 index(ix),
-                basic_var_type(t),
+                basic_var_type(var_type),
                 id,
             );
-            for (pos, e) in v.iter().enumerate() {
+            for (pos, e) in array_literal.iter().enumerate() {
                 println!("in_array(id_{},{},{}).", id, pos, basic_expr(e));
             }
         }
-        VarDeclItem::Basic(t, id, annos, None) => {
-            println!("variable({},id_{}).", basic_var_type(t), id);
+        VarDeclItem::Basic {
+            var_type,
+            id,
+            annos,
+            expr: None,
+        } => {
+            println!("variable({},id_{}).", basic_var_type(var_type), id);
         }
-        VarDeclItem::Basic(t, id, annos, Some(e)) => {
+        VarDeclItem::Basic {
+            var_type,
+            id,
+            annos,
+            expr: Some(e),
+        } => {
             println!(
                 "variable({},id_{},{}).",
-                basic_var_type(t),
+                basic_var_type(var_type),
                 id,
                 basic_expr(e)
             );
@@ -132,7 +148,7 @@ fn basic_var_type(t: &BasicVarType) -> String {
         BasicVarType::Domain(d) => domain(d),
         BasicVarType::Float => "float".to_string(),
         BasicVarType::Int => "int".to_string(),
-        BasicVarType::VarSetOFInt => "set_of_int".to_string(),
+        BasicVarType::SetOfInt => "set_of_int".to_string(),
     }
 }
 // TODO implement sets
@@ -197,11 +213,11 @@ fn basic_pred_par_type(t: &BasicPredParType) -> String {
     }
 }
 fn index(IndexSet(i): &IndexSet) -> String {
-    format!("{}", i)
+    i.to_string()
 }
 fn pred_index(is: &PredIndexSet) -> String {
     match is {
-        PredIndexSet::IndexSet(i) => index(&i),
+        PredIndexSet::IndexSet(i) => i.to_string(),
         PredIndexSet::Int => "int".to_string(),
     }
 }
@@ -246,10 +262,10 @@ fn basic_expr(e: &BasicExpr) -> String {
 }
 fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
     match e {
-        BasicLiteralExpr::BoolLiteral(b) => format!("{}", b),
-        BasicLiteralExpr::FloatLiteral(f) => format!("{}", f),
-        BasicLiteralExpr::IntLiteral(i) => format!("{}", i),
-        BasicLiteralExpr::SetLiteral(s) => set_literal(s),
+        BasicLiteralExpr::Bool(b) => format!("{}", b),
+        BasicLiteralExpr::Float(f) => format!("{}", f),
+        BasicLiteralExpr::Int(i) => format!("{}", i),
+        BasicLiteralExpr::Set(s) => set_literal(s),
     }
 }
 fn set_literal(l: &SetLiteral) -> String {
