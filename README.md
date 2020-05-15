@@ -55,7 +55,7 @@ is represented as:
 
     parameter(bool, "X_21", true).
 
-For other parameter types see  [*Parameter/variable types*](#parameter/variable-types).
+For other parameter types see  [*Parameter/variable types*](#parametervariable-types).
 
 Parameters of type array are declared by facts of form
 
@@ -85,7 +85,7 @@ is represented as:
 
     variable(bool, "X_35").
 
-For other parameter types see [*Parameter/variable types*](#parameter/variable-types).
+For other parameter types see [*Parameter/variable types*](#parametervariable-types).
 
 ### Representation of arrays
 
