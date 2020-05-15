@@ -11,8 +11,8 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "fzn2lp")]
 struct Opt {
-    /// Input in flatzinc format
-    #[structopt(short = "i", long = "input", parse(from_os_str))]
+    /// Input file in flatzinc format
+    #[structopt(name = "FILE", parse(from_os_str))]
     file: PathBuf,
 }
 
@@ -60,7 +60,7 @@ fn print_predicate(pred: &PredicateItem) {
                 identifier(&pred.id),
                 pos,
                 basic_pred_par_type(&par_type),
-                id
+                identifier(id)
             ),
             (PredParType::Array { ix, par_type }, id) => println!(
                 "predicate_parameter({},{},array({},{}),{}).",
@@ -68,7 +68,7 @@ fn print_predicate(pred: &PredicateItem) {
                 pos,
                 pred_index(&ix),
                 basic_pred_par_type(&par_type),
-                id
+                identifier(id)
             ),
         }
     }
@@ -174,7 +174,7 @@ fn domain(d: &Domain) -> String {
 }
 
 fn print_constraint(c: &ConstraintItem, i: usize) {
-    println!("constraint(c{},{})", i, identifier(&c.id));
+    println!("constraint(c{},{}).", i, identifier(&c.id));
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
             Expr::BasicExpr(e) => println!(
@@ -275,14 +275,14 @@ fn basic_expr(e: &BasicExpr) -> String {
 fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
     match e {
         BasicLiteralExpr::Bool(b) => b.to_string(),
-        BasicLiteralExpr::Float(f) => f.to_string(),
+        BasicLiteralExpr::Float(f) => format!("\"{}\"", f),
         BasicLiteralExpr::Int(i) => i.to_string(),
         BasicLiteralExpr::Set(s) => set_literal(s),
     }
 }
 fn set_literal(l: &SetLiteral) -> String {
     match l {
-        SetLiteral::FloatRange(f1, f2) => format!("range_i({},{})", f1, f2),
+        SetLiteral::FloatRange(f1, f2) => format!("range_i(\"{}\",\"{}\")", f1, f2),
         SetLiteral::IntRange(i1, i2) => format!("range_i({},{})", i1, i2),
         SetLiteral::SetFloats(v) => set_floats(v),
         SetLiteral::SetInts(v) => set_ints(v),
@@ -292,20 +292,20 @@ fn set_floats(v: &[f64]) -> String {
     let mut x = String::new();
     for f in v {
         if x.is_empty() {
-            x = f.to_string();
+            x = format!("\"{}\"", f);
         } else {
-            x = format!("{},{}", x, f);
+            x = format!("{},\"{}\"", x, f);
         }
     }
     format!("set_floats({}).", x)
 }
 fn set_ints(v: &[i128]) -> String {
     let mut x = String::new();
-    for f in v {
+    for i in v {
         if x.is_empty() {
-            x = f.to_string();
+            x = i.to_string();
         } else {
-            x = format!("{},{}", x, f);
+            x = format!("{},{}", x, i);
         }
     }
     format!("set_ints({}).", x)

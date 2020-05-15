@@ -5,7 +5,7 @@ A FlatZinc to AnsProlog converter.
 
 ## Usage
 
-    fzn2lp --input <file>
+    fzn2lp <FILE>
 
 ## Download
 
@@ -36,10 +36,10 @@ For example:
 is represented as:
 
     predicate("median_of_3").
-    predicate_parameter("median_of_3", 1, int, x)
-    predicate_parameter("median_of_3", 1, int, y)
-    predicate_parameter("median_of_3", 1, int, z)
-    predicate_parameter("median_of_3", 1, int, m)
+    predicate_parameter("median_of_3", 0, int, "x").
+    predicate_parameter("median_of_3", 1, int, "y").
+    predicate_parameter("median_of_3", 2, int, "z").
+    predicate_parameter("median_of_3", 3, int, "m").
 
 ### Parameter declarations
 
@@ -59,7 +59,7 @@ Other parameter types are `int` and `float`.
 
 Parameters of type array are declared by facts of form
 
-    parameter(array(Index,BasicParmeterType), ParameterName).
+    parameter(array(Index,BasicParameterType), ParameterName).
 
 For Example:
 
