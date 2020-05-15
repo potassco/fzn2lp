@@ -2,6 +2,12 @@
 
 # fzn2lp
 
+A FlatZinc to AnsProlog converter.
+
+## Usage
+
+    fzn2lp --input <file>
+
 ## Download
 
 Binaries for 64bit linux and macOS can be found on the [release page](https://github.com/sthiele/fzn2lp/releases/latest).
@@ -15,7 +21,9 @@ Clone the git repository:
 
 The executables can be found under `./target/release/`
 
-## Predicate declarations
+## AnsProlog output
+
+### Predicate declarations
 
 Predicate declarations are presented by facts of form:
 
@@ -32,9 +40,9 @@ is represented as:
     predicate_parameter(id_median_of_3, 1, int, x)
     predicate_parameter(id_median_of_3, 1, int, y)
     predicate_parameter(id_median_of_3, 1, int, z)
-    predicate_parameter(id_median_of_3, 1, int, m )
+    predicate_parameter(id_median_of_3, 1, int, m)
 
-## Parameter declarations
+### Parameter declarations
 
 Basic parameters are declared by facts of form:
 
@@ -64,7 +72,7 @@ is represented as:
 
 For the representation of the array see *Representation of arrays*
 
-## Variable declarations
+### Variable declarations
 
 Variable declarations are presented by facts of form:
 
@@ -80,7 +88,7 @@ is represented as:
 
 Other variable types are `int` and `float` ...
 
-## Representation of arrays
+### Representation of arrays
 
 Parameters or variables of type *array* like:
 
@@ -111,7 +119,7 @@ For example:
     in_array(id_Y, 1, id_Y_1).
     in_array(id_Y, 2, id_Y_2).
 
-## Representation of constraints
+### Representation of constraints
 
 Constraints are presented by facts of form:
 
@@ -135,7 +143,7 @@ is represented as:
     in_constraint(id_array_bool_or,0,1,id_X_36).
     in_constraint(id_array_bool_or,1,true).
 
-## Solve statement
+### Solve statement
 
 The solve statement is represented by one fact of the following form:
 
