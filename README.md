@@ -164,4 +164,4 @@ Basic types are `bool`, `int` and `float`. Further types are:
 
 - `range_i(u,v)` where `u` and `v` are integers, 
 - `range_f(u,v)` where `u` and `v` are quoted float literals,
-- `array(i,t)` of  where `i` is an integer or `int` and `t` is a basic type..
+- `array(i,t)`  where `i` is an integer or `int` and `t` is a basic type..
