@@ -47,7 +47,7 @@ Basic parameters are declared by facts of form:
 
     parameter(ParameterType, ParameterName, ParameterExpression).
 
-For Example:
+For example:
 
     bool: X_21 = true;
 
@@ -55,13 +55,13 @@ is represented as:
 
     parameter(bool, "X_21", true).
 
-Other parameter types are `int` and `float`.
+For other parameter types see  [*Parameter/variable types*](#parameter/variable-types).
 
 Parameters of type array are declared by facts of form
 
     parameter(array(Index,BasicParameterType), ParameterName).
 
-For Example:
+For example:
 
     array [1..2] of int: X_22 = [1,-1,5];
 
@@ -69,15 +69,15 @@ is represented as:
 
     parameter(array(2,int), "X_22").
 
-For the representation of the array see *Representation of arrays*
+For the representation of the array see [*Representation of arrays*](#representation-of-arrays)
 
 ### Variable declarations
 
 Variable declarations are presented by facts of form:
 
-    variable(VariableType, VariableName).
+    variable(Type, VariableName).
 
-For Example:
+For example:
 
     var bool: X_35;
 
@@ -85,7 +85,7 @@ is represented as:
 
     variable(bool, "X_35").
 
-Other variable types are `int` and `float` ...
+For other parameter types see [*Parameter/variable types*](#parameter/variable-types).
 
 ### Representation of arrays
 
@@ -130,7 +130,7 @@ If the constraint parameter is of type array the following predicate is used to 
     in_constraint(ConstraintId, Pos, array).
     in_constraint(ConstraintId, Pos, ArrayPos, Expr).
 
-For Example:
+For example:
 
     constraint array_bool_or([X_35,X_36],true);
 
@@ -150,10 +150,18 @@ The solve statement is represented by one fact of the following form:
     solve(maximize, Expr).
     solve(minimize, Expr).
 
-For Example:
+For example:
 
     solve minimize X_24;
 
 is represented as:
 
     solve(minimize, "X_24").
+
+### Parameter/variable types
+
+Basic types are `bool`, `int` and `float`. Further types are:
+
+- `range_i(u,v)` where `u` and `v` are integers, 
+- `range_f(u,v)` where `u` and `v` are quoted float literals,
+- `array(i,t)` of  where `i` is an integer or `int` and `t` is a basic type..
