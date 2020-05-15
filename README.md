@@ -92,7 +92,7 @@ Other variable types are `int` and `float` ...
 Parameters or variables of type *array* like:
 
     array [1..2] of int: X = [1,-1,5];
-    array [1..2] of var int: Y  = [Y_0_,Y_1_,Y_2_];
+    array [1..2] of var int: Y  = [Y_0,Y_1,Y_2];
 
 are represented by facts
 
@@ -132,7 +132,7 @@ If the constraint parameter is of type array the following predicate is used to 
 
 For Example:
 
-    constraint array_bool_or([X_35,X__36],true);
+    constraint array_bool_or([X_35,X_36],true);
 
 is represented as:
 
