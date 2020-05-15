@@ -119,14 +119,14 @@ For example:
     in_array(id_Y, 1, id_Y_1).
     in_array(id_Y, 2, id_Y_2).
 
-### Representation of constraints
+### Constraints
 
 Constraints are presented by facts of form:
 
     constraint(ConstraintId).
     in_constraint(ConstraintId,Pos,Expr).
 
-If the constraint parmeter is of type array the following predicate is used to represent the elements of the array.
+If the constraint parameter is of type array the following predicate is used to represent the elements of the array.
 
     in_constraint(ConstraintId,Pos,array).
     in_constraint(ConstraintId,Pos,ArrayPos,Expr).
@@ -137,7 +137,7 @@ For Example:
 
 is represented as:
 
-    constraint(id_array_bool_or)
+    constraint(id_array_bool_or).
     in_constraint(id_array_bool_or,0,array).
     in_constraint(id_array_bool_or,0,0,id_X_35).
     in_constraint(id_array_bool_or,0,1,id_X_36).
