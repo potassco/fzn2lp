@@ -46,25 +46,25 @@ fn fzn2lp(model: &flatzinc::Model) {
     for i in &model.var_decl_items {
         print_var_decl_item(i);
     }
-    for c in &model.constraint_items {
-        print_constraint(c);
+    for (i, c) in model.constraint_items.iter().enumerate() {
+        print_constraint(c, i);
     }
     print_solve_item(&model.solve_item)
 }
 fn print_predicate(pred: &PredicateItem) {
-    println!("predicate(id_{}).", pred.id);
+    println!("predicate({}).", identifier(&pred.id));
     for (pos, p) in pred.parameters.iter().enumerate() {
         match p {
             (PredParType::Basic(par_type), id) => println!(
                 "predicate_parameter({},{},{},{}).",
-                pred.id,
+                identifier(&pred.id),
                 pos,
                 basic_pred_par_type(&par_type),
                 id
             ),
             (PredParType::Array { ix, par_type }, id) => println!(
                 "predicate_parameter({},{},array({},{}),{}).",
-                pred.id,
+                identifier(&pred.id),
                 pos,
                 pred_index(&ix),
                 basic_pred_par_type(&par_type),
@@ -76,9 +76,9 @@ fn print_predicate(pred: &PredicateItem) {
 fn print_par_decl_item(p: &ParDeclItem) {
     match p {
         ParDeclItem::Basic { par_type, id, expr } => print!(
-            "parameter({}, id_{},{}).",
+            "parameter({}, {},{}).",
             basic_par_type(&par_type),
-            id,
+            identifier(id),
             par_expr_basic_literal_expr(expr)
         ),
         ParDeclItem::Array {
@@ -89,18 +89,23 @@ fn print_par_decl_item(p: &ParDeclItem) {
         } => {
             let array_elements = par_expr_array_expr(expr);
             println!(
-                "parameter(array({},{}), id_{}).",
+                "parameter(array({},{}),{}).",
                 index(ix),
                 basic_par_type(&par_type),
-                id
+                identifier(id)
             );
             for (pos, e) in array_elements.iter().enumerate() {
-                println!("in_array(id_{},{},{}).", id, pos, basic_literal_expr(e));
+                println!(
+                    "in_array({},{},{}).",
+                    identifier(id),
+                    pos,
+                    basic_literal_expr(e)
+                );
             }
         }
     }
 }
-fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
+fn print_var_decl_item(d: &VarDeclItem) {
     match d {
         VarDeclItem::Array {
             ix,
@@ -110,13 +115,13 @@ fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
             array_literal,
         } => {
             println!(
-                "variable(array({},{}),id_{}).",
+                "variable(array({},{}),{}).",
                 index(ix),
                 basic_var_type(var_type),
-                id,
+                identifier(id),
             );
             for (pos, e) in array_literal.iter().enumerate() {
-                println!("in_array(id_{},{},{}).", id, pos, basic_expr(e));
+                println!("in_array({},{},{}).", identifier(id), pos, basic_expr(e));
             }
         }
         VarDeclItem::Basic {
@@ -125,7 +130,7 @@ fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
             annos,
             expr: None,
         } => {
-            println!("variable({},id_{}).", basic_var_type(var_type), id);
+            println!("variable({},{}).", basic_var_type(var_type), identifier(id));
         }
         VarDeclItem::Basic {
             var_type,
@@ -134,9 +139,9 @@ fn print_var_decl_item(d: &flatzinc::VarDeclItem) {
             expr: Some(e),
         } => {
             println!(
-                "variable({},id_{},{}).",
+                "variable({},{},{}).",
                 basic_var_type(var_type),
-                id,
+                identifier(id),
                 basic_expr(e)
             );
         }
@@ -168,19 +173,23 @@ fn domain(d: &Domain) -> String {
     }
 }
 
-fn print_constraint(c: &ConstraintItem) {
-    println!("constraint(id_{})", c.id);
+fn print_constraint(c: &ConstraintItem, i: usize) {
+    println!("constraint(c{},{})", i, identifier(&c.id));
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
-            Expr::BasicExpr(e) => {
-                println!("in_constraint(id_{},{},{}).", c.id, cpos, basic_expr(&e))
-            }
+            Expr::BasicExpr(e) => println!(
+                "in_constraint(c{},{},{},{}).",
+                i,
+                identifier(&c.id),
+                cpos,
+                basic_expr(&e)
+            ),
             Expr::ArrayLiteral(v) => {
-                println!("in_constraint(id_{},{},array).", c.id, cpos);
+                println!("in_constraint(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "in_constraint(id_{},{},{},{}).",
-                        c.id,
+                        "in_constraint(c{},{},{},{}).",
+                        i,
                         cpos,
                         apos,
                         basic_expr(&ae)
@@ -214,6 +223,9 @@ fn basic_pred_par_type(t: &BasicPredParType) -> String {
 }
 fn index(IndexSet(i): &IndexSet) -> String {
     i.to_string()
+}
+fn identifier(s: &str) -> String {
+    format!("\"{}\"", s)
 }
 fn pred_index(is: &PredIndexSet) -> String {
     match is {
@@ -257,7 +269,7 @@ fn par_expr_basic_literal_expr(e: &ParExpr) -> String {
 fn basic_expr(e: &BasicExpr) -> String {
     match e {
         BasicExpr::BasicLiteralExpr(e) => basic_literal_expr(e),
-        BasicExpr::VarParIdentifier(s) => format!("id_{}", s),
+        BasicExpr::VarParIdentifier(s) => identifier(s),
     }
 }
 fn basic_literal_expr(e: &BasicLiteralExpr) -> String {

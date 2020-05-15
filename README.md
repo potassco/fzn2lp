@@ -35,17 +35,17 @@ For example:
 
 is represented as:
 
-    predicate(id_median_of_3).
-    predicate_parameter(id_median_of_3, 1, int, x)
-    predicate_parameter(id_median_of_3, 1, int, y)
-    predicate_parameter(id_median_of_3, 1, int, z)
-    predicate_parameter(id_median_of_3, 1, int, m)
+    predicate("median_of_3").
+    predicate_parameter("median_of_3", 1, int, x)
+    predicate_parameter("median_of_3", 1, int, y)
+    predicate_parameter("median_of_3", 1, int, z)
+    predicate_parameter("median_of_3", 1, int, m)
 
 ### Parameter declarations
 
 Basic parameters are declared by facts of form:
 
-    parameter(ParameterType,ParameterName, ParameterExpression).
+    parameter(ParameterType, ParameterName, ParameterExpression).
 
 For Example:
 
@@ -53,13 +53,13 @@ For Example:
 
 is represented as:
 
-    parameter(bool,id_X_21, true).
+    parameter(bool, "X_21", true).
 
 Other parameter types are `int` and `float`.
 
 Parameters of type array are declared by facts of form
 
-    parameter(array(Index,BasicParmeterType),ParameterName).
+    parameter(array(Index,BasicParmeterType), ParameterName).
 
 For Example:
 
@@ -67,7 +67,7 @@ For Example:
 
 is represented as:
 
-    parameter(array(2,int),id_X_22, ParameterExpression).
+    parameter(array(2,int), "X_22").
 
 For the representation of the array see *Representation of arrays*
 
@@ -75,7 +75,7 @@ For the representation of the array see *Representation of arrays*
 
 Variable declarations are presented by facts of form:
 
-    variable(VariableType,VariableName).
+    variable(VariableType, VariableName).
 
 For Example:
 
@@ -83,7 +83,7 @@ For Example:
 
 is represented as:
 
-    variable(bool,id_X_35).
+    variable(bool, "X_35").
 
 Other variable types are `int` and `float` ...
 
@@ -94,10 +94,10 @@ Parameters or variables of type *array* like:
     array [1..2] of int: X = [1,-1,5];
     array [1..2] of var int: Y  = [Y_0_,Y_1_,Y_2_];
 
-are declared by facts
+are represented by facts
 
-    parameter(array(2,int), id_X).
-    variable(array(2,int),id_Y).
+    parameter(array(2,int), "X").
+    variable(array(2,int), "Y").
 
 The array itself represented by using the predicate `in_array/3`:
 
@@ -111,24 +111,24 @@ where
 
 For example:
 
-    in_array(id_X, 0, 1).
-    in_array(id_X, 1, -1).
-    in_array(id_X, 2, 5).
-    in_array(id_Y, 0, id_Y_0).
-    in_array(id_Y, 1, id_Y_1).
-    in_array(id_Y, 2, id_Y_2).
+    in_array("X", 0, 1).
+    in_array("X", 1, -1).
+    in_array("X", 2, 5).
+    in_array("Y", 0, "Y_0").
+    in_array("Y", 1, "Y_1").
+    in_array("Y", 2, "Y_2").
 
 ### Constraints
 
 Constraints are presented by facts of form:
 
-    constraint(ConstraintId).
-    in_constraint(ConstraintId,Pos,Expr).
+    constraint(ConstraintId, ConstraintName).
+    in_constraint(ConstraintId, ConstraintName, Pos, Expr).
 
 If the constraint parameter is of type array the following predicate is used to represent the elements of the array.
 
-    in_constraint(ConstraintId,Pos,array).
-    in_constraint(ConstraintId,Pos,ArrayPos,Expr).
+    in_constraint(ConstraintId, Pos, array).
+    in_constraint(ConstraintId, Pos, ArrayPos, Expr).
 
 For Example:
 
@@ -136,19 +136,19 @@ For Example:
 
 is represented as:
 
-    constraint(id_array_bool_or).
-    in_constraint(id_array_bool_or,0,array).
-    in_constraint(id_array_bool_or,0,0,id_X_35).
-    in_constraint(id_array_bool_or,0,1,id_X_36).
-    in_constraint(id_array_bool_or,1,true).
+    constraint(c1, "array_bool_or").
+    in_constraint(c1, 0, array).
+    in_constraint(c1, 0, 0, "X_35").
+    in_constraint(c1, 0, 1, "X_36").
+    in_constraint(c1, 1, true).
 
 ### Solve statement
 
 The solve statement is represented by one fact of the following form:
 
     solve(satisfy).
-    solve(maximize,Expr).
-    solve(minimize,Expr).
+    solve(maximize, Expr).
+    solve(minimize, Expr).
 
 For Example:
 
@@ -156,4 +156,4 @@ For Example:
 
 is represented as:
 
-    solve(minimize,id_X_24).
+    solve(minimize, "X_24").
