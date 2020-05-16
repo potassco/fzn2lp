@@ -1,9 +1,16 @@
 use anyhow::Result;
 use flatzinc::*;
-use log::error;
-use nom::error::{convert_error, VerboseError};
-use nom::Err;
-use std::path::PathBuf;
+use log::{error, warn};
+use nom::{
+    branch::alt,
+    error::{convert_error, ParseError, VerboseError},
+    Err, IResult,
+};
+use std::{
+    fs::File,
+    io::{self, prelude::*, BufReader},
+    path::PathBuf,
+};
 use stderrlog;
 use structopt::StructOpt;
 
@@ -13,10 +20,16 @@ use structopt::StructOpt;
 struct Opt {
     /// Input file in flatzinc format
     #[structopt(name = "FILE", parse(from_os_str))]
-    file: PathBuf,
+    file: Option<PathBuf>,
 }
 
-fn main() -> Result<()> {
+fn main() {
+    if let Err(err) = run() {
+        error!("{:?}", err);
+        std::process::exit(1);
+    }
+}
+fn run() -> Result<()> {
     stderrlog::new()
         .module(module_path!())
         .verbosity(2)
@@ -24,47 +37,140 @@ fn main() -> Result<()> {
         .unwrap();
 
     let opt = Opt::from_args();
-    let buf = std::fs::read_to_string(opt.file)?;
-    match flatzinc::model::<VerboseError<&str>>(&buf) {
-        Ok((_, result)) => fzn2lp(&result),
+    let mut level = 1;
+    let mut counter = 1;
 
-        Err(Err::Error(e)) | Err(Err::Failure(e)) => {
-            error!("Failed to parse flatzinc!\n{}", convert_error(&buf, e))
+    if let Some(file) = opt.file {
+        let file = File::open(file)?;
+        let reader = BufReader::new(file);
+
+        for line in reader.lines() {
+            match_fz_stmt(&line?, &mut counter, &mut level)?;
         }
-        Err(e) => error!("Failed to parse flatzinc: {:?}", e),
+        Ok(())
+    } else {
+        let mut buf = String::new();
+        while 0 < io::stdin().read_line(&mut buf)? {
+            match_fz_stmt(&buf, &mut counter, &mut level)?;
+            buf.clear();
+        }
+        Ok(())
     }
-    Ok(())
 }
-
-fn fzn2lp(model: &flatzinc::Model) {
-    for i in &model.predicate_items {
-        print_predicate(i);
-    }
-    for i in &model.par_decl_items {
-        print_par_decl_item(i);
-    }
-    for i in &model.var_decl_items {
-        print_var_decl_item(i);
-    }
-    for (i, c) in model.constraint_items.iter().enumerate() {
-        print_constraint(c, i);
-    }
-    print_solve_item(&model.solve_item)
+use thiserror::Error;
+#[derive(Error, Debug)]
+pub enum FlatZincError {
+    #[error("More than one solve item")]
+    MultipleSolveItems,
+    #[error("ParseError: {msg}")]
+    ParseError { msg: String },
 }
-fn print_predicate(pred: &PredicateItem) {
-    println!("predicate({}).", identifier(&pred.id));
-    for (pos, p) in pred.parameters.iter().enumerate() {
+fn match_fz_stmt(input: &str, counter: &mut usize, level: &mut i32) -> Result<(), FlatZincError> {
+    match fz_statement::<VerboseError<&str>>(&input) {
+        Ok((_rest, stmt)) => {
+            match stmt {
+                FzStmt::Predicate(pred) => {
+                    if *level > 1 {
+                        warn!("Statements in wrong order.");
+                    }
+                    print_predicate(&pred);
+                }
+                FzStmt::Parameter(p) => {
+                    if *level > 2 {
+                        warn!("Statements in wrong order.");
+                    } else {
+                        *level = 2;
+                    }
+                    print_par_decl_item(&p);
+                }
+                FzStmt::Variable(d) => {
+                    if *level > 3 {
+                        warn!("Statements in wrong order.");
+                    } else {
+                        *level = 3;
+                    }
+                    print_var_decl_item(&d);
+                }
+                FzStmt::Constraint(c) => {
+                    if *level > 4 {
+                        warn!("Statements in wrong order.");
+                    } else {
+                        *level = 4;
+                    }
+                    print_constraint(&c, *counter);
+                    *counter += 1;
+                }
+                FzStmt::SolveItem(i) => {
+                    if *level > 4 {
+                        return Err(FlatZincError::MultipleSolveItems);
+                    }
+                    print_solve_item(&i);
+                    *level = 5;
+                }
+            }
+            Ok(())
+        }
+        Err(Err::Error(e)) | Err(Err::Failure(e)) => {
+            let bla = convert_error(&input, e);
+            Err(FlatZincError::ParseError { msg: bla })
+        }
+        Err(e) => Err(FlatZincError::ParseError {
+            msg: format!("{}", e),
+        }),
+    }
+}
+#[derive(PartialEq, Clone, Debug)]
+pub enum FzStmt {
+    Predicate(PredicateItem),
+    Parameter(ParDeclItem),
+    Variable(VarDeclItem),
+    Constraint(ConstraintItem),
+    SolveItem(SolveItem),
+}
+pub fn fz_statement<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
+    let (input, res) = alt((
+        fz_predicate,
+        fz_parameter,
+        fz_variable,
+        fz_constraint,
+        fz_solve_item,
+    ))(input)?;
+    Ok((input, res))
+}
+fn fz_predicate<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
+    let (input, item) = predicate_item(input)?;
+    Ok((input, FzStmt::Predicate(item)))
+}
+fn fz_parameter<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
+    let (input, item) = par_decl_item(input)?;
+    Ok((input, FzStmt::Parameter(item)))
+}
+fn fz_variable<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
+    let (input, item) = var_decl_item(input)?;
+    Ok((input, FzStmt::Variable(item)))
+}
+fn fz_constraint<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
+    let (input, item) = constraint_item(input)?;
+    Ok((input, FzStmt::Constraint(item)))
+}
+fn fz_solve_item<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
+    let (input, item) = solve_item(input)?;
+    Ok((input, FzStmt::SolveItem(item)))
+}
+fn print_predicate(item: &PredicateItem) {
+    println!("predicate({}).", identifier(&item.id));
+    for (pos, p) in item.parameters.iter().enumerate() {
         match p {
             (PredParType::Basic(par_type), id) => println!(
                 "predicate_parameter({},{},{},{}).",
-                identifier(&pred.id),
+                identifier(&item.id),
                 pos,
                 basic_pred_par_type(&par_type),
                 identifier(id)
             ),
             (PredParType::Array { ix, par_type }, id) => println!(
                 "predicate_parameter({},{},array({},{}),{}).",
-                identifier(&pred.id),
+                identifier(&item.id),
                 pos,
                 pred_index(&ix),
                 basic_pred_par_type(&par_type),
@@ -73,8 +179,8 @@ fn print_predicate(pred: &PredicateItem) {
         }
     }
 }
-fn print_par_decl_item(p: &ParDeclItem) {
-    match p {
+fn print_par_decl_item(item: &ParDeclItem) {
+    match item {
         ParDeclItem::Basic { par_type, id, expr } => print!(
             "parameter({}, {},{}).",
             basic_par_type(&par_type),
@@ -105,8 +211,8 @@ fn print_par_decl_item(p: &ParDeclItem) {
         }
     }
 }
-fn print_var_decl_item(d: &VarDeclItem) {
-    match d {
+fn print_var_decl_item(item: &VarDeclItem) {
+    match item {
         VarDeclItem::Array {
             ix,
             var_type,
