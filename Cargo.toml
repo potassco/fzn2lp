@@ -12,8 +12,7 @@ exclude = ["/.github"]
 
 [dependencies]
 nom = "5.1"
-# flatzinc = "0.2"
-flatzinc = { path="../flatzinc"}
+flatzinc = "0.2.1"
 structopt = "0.3"
 anyhow = "1.0"
 thiserror = "1.0"
