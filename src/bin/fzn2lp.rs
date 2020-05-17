@@ -45,15 +45,14 @@ fn run() -> Result<()> {
         for line in reader.lines() {
             match_fz_stmt(&line?, &mut counter, &mut level)?;
         }
-        Ok(())
     } else {
         let mut buf = String::new();
         while 0 < io::stdin().read_line(&mut buf)? {
             match_fz_stmt(&buf, &mut counter, &mut level)?;
             buf.clear();
         }
-        Ok(())
     }
+    Ok(())
 }
 use thiserror::Error;
 #[derive(Error, Debug)]
