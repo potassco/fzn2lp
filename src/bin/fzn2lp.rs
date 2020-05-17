@@ -11,7 +11,6 @@ use std::{
     io::{self, prelude::*, BufReader},
     path::PathBuf,
 };
-use stderrlog;
 use structopt::StructOpt;
 
 /// Convert FlatZinc to AnsProlog facts
@@ -24,18 +23,17 @@ struct Opt {
 }
 
 fn main() {
+    stderrlog::new()
+        .module(module_path!())
+        .verbosity(2)
+        .init()
+        .unwrap();
     if let Err(err) = run() {
         error!("{:?}", err);
         std::process::exit(1);
     }
 }
 fn run() -> Result<()> {
-    stderrlog::new()
-        .module(module_path!())
-        .verbosity(2)
-        .init()
-        .unwrap();
-
     let opt = Opt::from_args();
     let mut level = 1;
     let mut counter = 1;
