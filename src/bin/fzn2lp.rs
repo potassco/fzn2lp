@@ -1,11 +1,6 @@
 use anyhow::Result;
 use flatzinc::*;
 use log::{error, warn};
-use nom::{
-    branch::alt,
-    error::{convert_error, ParseError, VerboseError},
-    Err, IResult,
-};
 use std::{
     fs::File,
     io::{self, prelude::*, BufReader},
@@ -116,44 +111,7 @@ fn match_fz_stmt(input: &str, counter: &mut usize, level: &mut i32) -> Result<()
         }),
     }
 }
-#[derive(PartialEq, Clone, Debug)]
-pub enum FzStmt {
-    Predicate(PredicateItem),
-    Parameter(ParDeclItem),
-    Variable(VarDeclItem),
-    Constraint(ConstraintItem),
-    SolveItem(SolveItem),
-}
-pub fn fz_statement<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
-    let (input, res) = alt((
-        fz_predicate,
-        fz_parameter,
-        fz_variable,
-        fz_constraint,
-        fz_solve_item,
-    ))(input)?;
-    Ok((input, res))
-}
-fn fz_predicate<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
-    let (input, item) = predicate_item(input)?;
-    Ok((input, FzStmt::Predicate(item)))
-}
-fn fz_parameter<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
-    let (input, item) = par_decl_item(input)?;
-    Ok((input, FzStmt::Parameter(item)))
-}
-fn fz_variable<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
-    let (input, item) = var_decl_item(input)?;
-    Ok((input, FzStmt::Variable(item)))
-}
-fn fz_constraint<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
-    let (input, item) = constraint_item(input)?;
-    Ok((input, FzStmt::Constraint(item)))
-}
-fn fz_solve_item<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, FzStmt, E> {
-    let (input, item) = solve_item(input)?;
-    Ok((input, FzStmt::SolveItem(item)))
-}
+
 fn print_predicate(item: &PredicateItem) {
     println!("predicate({}).", identifier(&item.id));
     for (pos, p) in item.parameters.iter().enumerate() {
