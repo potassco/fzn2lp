@@ -123,7 +123,7 @@ For example:
 Constraints are presented by facts of form:
 
     constraint(ConstraintId, ConstraintName).
-    in_constraint(ConstraintId, ConstraintName, Pos, Expr).
+    in_constraint(ConstraintId, Pos, Expr).
 
 If the constraint parameter is of type array the following predicate is used to represent the elements of the array.
 
