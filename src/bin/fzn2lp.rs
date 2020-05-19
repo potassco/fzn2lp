@@ -238,13 +238,7 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
     println!("constraint(c{},{}).", i, identifier(&c.id));
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
-            Expr::BasicExpr(e) => println!(
-                "in_constraint(c{},{},{},{}).",
-                i,
-                identifier(&c.id),
-                cpos,
-                basic_expr(&e)
-            ),
+            Expr::BasicExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, basic_expr(&e)),
             Expr::ArrayLiteral(v) => {
                 println!("in_constraint(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
