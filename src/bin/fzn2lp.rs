@@ -506,8 +506,8 @@ fn basic_var_type(t: &BasicVarType) -> String {
         BasicVarType::Float => "float".to_string(),
         BasicVarType::FloatInRange(lb, ub) => float_in_range(lb, ub),
         BasicVarType::SetOfInt => "set_of_int".to_string(),
-        BasicVarType::SubsetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
-        BasicVarType::SubsetOfIntInSet(set) => set_of_int_in_set(set),
+        BasicVarType::SetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
+        BasicVarType::SetOfIntInSet(set) => set_of_int_in_set(set),
     }
 }
 // TODO implement sets
@@ -524,7 +524,7 @@ fn set_of_int_in_range(lb: &i128, ub: &i128) -> String {
     format!("set_of_int_in_range(\"{}\",\"{}\")", lb, ub)
 }
 fn set_of_int_in_set(_set: &[i128]) -> String {
-    panic!("TODO: subset_of_int_in_set ..")
+    panic!("TODO: set_of_int_in_set ..")
 }
 fn print_constraint(c: &ConstraintItem, i: usize) {
     println!("constraint(c{},{}).", i, identifier(&c.id));
@@ -597,8 +597,8 @@ fn basic_pred_par_type(t: &BasicPredParType) -> String {
         BasicPredParType::FloatInRange(lb, ub) => float_in_range(lb, ub),
         BasicPredParType::IntInRange(lb, ub) => int_in_range(lb, ub),
         BasicPredParType::IntInSet(set) => int_in_set(set),
-        BasicPredParType::SubsetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
-        BasicPredParType::SubsetOfIntInSet(set) => set_of_int_in_set(set),
+        BasicPredParType::SetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
+        BasicPredParType::SetOfIntInSet(set) => set_of_int_in_set(set),
     }
 }
 fn opt_type(opt_type: &OptimizationType) -> String {
