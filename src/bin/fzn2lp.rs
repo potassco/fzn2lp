@@ -136,11 +136,24 @@ fn print_predicate(item: &PredicateItem) {
 }
 fn print_par_decl_item(item: &ParDeclItem) {
     match item {
-        ParDeclItem::Basic { par_type, id, expr } => print!(
-            "parameter({}, {},{}).",
-            basic_par_type(&par_type),
+        ParDeclItem::Bool { id, bool } => {
+            print!("parameter(bool, {},{}).", identifier(id), bool.to_string())
+        }
+        ParDeclItem::Int { id, int } => {
+            print!("parameter(int, {},{}).", identifier(id), int.to_string())
+        }
+        ParDeclItem::Float { id, float } => print!(
+            "parameter(float, {},{}).",
             identifier(id),
-            par_expr_basic_literal_expr(expr)
+            float.to_string()
+        ),
+        ParDeclItem::SetOfInt {
+            id,
+            set_literal: sl,
+        } => print!(
+            "parameter(set_of_int, {},{}).",
+            identifier(id),
+            set_literal(sl)
         ),
         ParDeclItem::Array {
             ix,
@@ -148,7 +161,12 @@ fn print_par_decl_item(item: &ParDeclItem) {
             id,
             expr,
         } => {
-            let array_elements = par_expr_array_expr(expr);
+            let array_elements = match expr {
+                    ParExpr::ParArrayLiteral(v) => v,
+                    other => panic!(
+                        "I think this should be an array, but its a basic-literal-expr: {:#?}! Maybe use par_expr?",other
+                    ),
+                };
             println!(
                 "parameter(array({},{}),{}).",
                 index(ix),
@@ -168,78 +186,355 @@ fn print_par_decl_item(item: &ParDeclItem) {
 }
 fn print_var_decl_item(item: &VarDeclItem) {
     match item {
-        VarDeclItem::Array {
-            ix,
-            var_type,
+        VarDeclItem::Bool {
             id,
+            expr: None,
             annos,
-            array_literal,
+        } => {
+            println!("variable(bool,{}).", identifier(id));
+        }
+        VarDeclItem::Bool {
+            id,
+            expr: Some(e),
+            annos,
+        } => {
+            println!("variable(bool,{},{}).", identifier(id), e.to_string());
+        }
+        VarDeclItem::Int {
+            id,
+            expr: None,
+            annos,
+        } => {
+            println!("variable(int,{}).", identifier(id));
+        }
+        VarDeclItem::Int {
+            id,
+            expr: Some(e),
+            annos,
+        } => {
+            println!("variable(int,{},{}).", identifier(id), e.to_string());
+        }
+        VarDeclItem::IntInRange {
+            id,
+            lb,
+            ub,
+            int: None,
+            annos,
+        } => {
+            println!("variable({},{}).", int_in_range(lb, ub), identifier(id));
+        }
+        VarDeclItem::IntInRange {
+            id,
+            lb,
+            ub,
+            int: Some(e),
+            annos,
         } => {
             println!(
-                "variable(array({},{}),{}).",
-                index(ix),
-                basic_var_type(var_type),
+                "variable({},{},{}).",
+                int_in_range(lb, ub),
                 identifier(id),
+                e.to_string()
             );
-            for (pos, e) in array_literal.iter().enumerate() {
-                println!("in_array({},{},{}).", identifier(id), pos, basic_expr(e));
-            }
         }
-        VarDeclItem::Basic {
-            var_type,
+        VarDeclItem::IntInSet {
+            id,
+            set,
+            int: None,
+            annos,
+        } => {
+            println!("variable({},{}).", int_in_set(set), identifier(id),);
+        }
+        VarDeclItem::IntInSet {
+            id,
+            set,
+            int: Some(e),
+            annos,
+        } => {
+            println!(
+                "variable({},{},{}).",
+                int_in_set(set),
+                identifier(id),
+                e.to_string()
+            );
+        }
+        VarDeclItem::Float {
             id,
             annos,
             expr: None,
         } => {
-            println!("variable({},{}).", basic_var_type(var_type), identifier(id));
+            println!("variable(float,{}).", identifier(id));
         }
-        VarDeclItem::Basic {
-            var_type,
+        VarDeclItem::Float {
+            id,
+            expr: Some(e),
+            annos,
+        } => {
+            println!("variable(float,{},{}).", identifier(id), e.to_string());
+        }
+        VarDeclItem::FloatInRange {
+            id,
+            lb,
+            ub,
+            float: None,
+            annos,
+        } => {
+            println!("variable({},{}).", float_in_range(lb, ub), identifier(id));
+        }
+        VarDeclItem::FloatInRange {
+            id,
+            lb,
+            ub,
+            float: Some(e),
+            annos,
+        } => {
+            println!(
+                "variable({},{},\"{}\").",
+                float_in_range(lb, ub),
+                identifier(id),
+                e.to_string()
+            );
+        }
+        VarDeclItem::SetOfInt {
+            id,
+            expr: None,
+            annos,
+        } => {
+            println!("variable(set_of_int,{}).", identifier(id));
+        }
+        VarDeclItem::SetOfInt {
             id,
             annos,
             expr: Some(e),
         } => {
             println!(
-                "variable({},{},{}).",
-                basic_var_type(var_type),
+                "variable(set_of_int,{},{}).",
                 identifier(id),
-                basic_expr(e)
+                set_literal(e)
             );
+        }
+        VarDeclItem::SetOfIntInRange {
+            id,
+            lb,
+            ub,
+            expr: None,
+            annos,
+        } => {
+            println!(
+                "variable({},{}).",
+                set_of_int_in_range(lb, ub),
+                identifier(id)
+            );
+        }
+        VarDeclItem::SetOfIntInRange {
+            id,
+            lb,
+            ub,
+            expr: Some(e),
+            annos,
+        } => {
+            println!(
+                "variable({},{},{}).",
+                set_of_int_in_range(lb, ub),
+                identifier(id),
+                set_literal(e)
+            );
+        }
+        VarDeclItem::SetOfIntInSet {
+            id,
+            set,
+            expr: None,
+            annos,
+        } => {
+            println!("variable({},{}).", set_of_int_in_set(set), identifier(id));
+        }
+        VarDeclItem::SetOfIntInSet {
+            id,
+            set,
+            expr: Some(e),
+            annos,
+        } => {
+            println!(
+                "variable({},{},{}).",
+                set_of_int_in_set(set),
+                identifier(id),
+                set_literal(e)
+            );
+        }
+
+        VarDeclItem::ArrayOfBool {
+            id,
+            ix,
+            array_literal,
+            annos,
+        } => {
+            println!("variable(array({},bool),{}).", index(ix), identifier(id),);
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, bool_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfInt {
+            id,
+            ix,
+            array_literal,
+            annos,
+        } => {
+            println!("variable(array({},int),{}).", index(ix), identifier(id),);
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, int_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfIntInRange {
+            id,
+            ix,
+            lb,
+            ub,
+            array_literal,
+            annos,
+        } => {
+            println!(
+                "variable(array({},{}),{}).",
+                index(ix),
+                int_in_range(lb, ub),
+                identifier(id),
+            );
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, int_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfIntInSet {
+            id,
+            ix,
+            set,
+            array_literal,
+            annos,
+        } => {
+            println!(
+                "variable(array({},{}),{}).",
+                index(ix),
+                int_in_set(set),
+                identifier(id),
+            );
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, int_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfFloat {
+            id,
+            ix,
+            annos,
+            array_literal,
+        } => {
+            println!("variable(array({},float),{}).", index(ix), identifier(id),);
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, float_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfFloatInRange {
+            id,
+            ix,
+            lb,
+            ub,
+            array_literal,
+            annos,
+        } => {
+            println!(
+                "variable(array({},{}),{}).",
+                index(ix),
+                float_in_range(lb, ub),
+                identifier(id),
+            );
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, float_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfSet {
+            id,
+            ix,
+            array_literal,
+            annos,
+        } => {
+            println!("variable(array({},set),{}).", index(ix), identifier(id),);
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, set_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfSetOfIntInRange {
+            id,
+            ix,
+            lb,
+            ub,
+            array_literal,
+            annos,
+        } => {
+            println!(
+                "variable(array({},{}),{}).",
+                index(ix),
+                set_of_int_in_range(lb, ub),
+                identifier(id),
+            );
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, set_expr(e));
+            }
+        }
+        VarDeclItem::ArrayOfSetOfIntInSet {
+            id,
+            ix,
+            set,
+            array_literal,
+            annos,
+        } => {
+            println!(
+                "variable(array({},{}),{}).",
+                index(ix),
+                set_of_int_in_set(set),
+                identifier(id),
+            );
+            for (pos, e) in array_literal.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, set_expr(e));
+            }
         }
     }
 }
 fn basic_var_type(t: &BasicVarType) -> String {
     match t {
         BasicVarType::Bool => "bool".to_string(),
-        BasicVarType::Domain(d) => domain(d),
-        BasicVarType::Float => "float".to_string(),
+        // BasicVarType::Domain(d) => domain(d),
         BasicVarType::Int => "int".to_string(),
+        BasicVarType::IntInRange(lb, ub) => int_in_range(lb, ub),
+        BasicVarType::IntInSet(set) => int_in_set(set),
+        BasicVarType::Float => "float".to_string(),
+        BasicVarType::FloatInRange(lb, ub) => float_in_range(lb, ub),
         BasicVarType::SetOfInt => "set_of_int".to_string(),
+        BasicVarType::SubsetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
+        BasicVarType::SubsetOfIntInSet(set) => set_of_int_in_set(set),
     }
 }
 // TODO implement sets
-fn domain(d: &Domain) -> String {
-    match d {
-        Domain::FloatRange(f1, f2) => format!("range_f({},{})", f1, f2),
-        Domain::IntRange(i1, i2) => format!("range_i({},{})", i1, i2),
-        Domain::SetInt(v) => {
-            error!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
-            panic!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
-        }
-        Domain::SetIntNonEmpty(v) => {
-            error!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
-            panic!("Not implemented: VAR TYPE NON_EMPTY SET INT {:#?}", v);
-        }
-        Domain::SetIntRange(i1, i2) => format!("set_int_range({},{})", i1, i2),
-    }
+fn int_in_range(lb: &i128, ub: &i128) -> String {
+    format!("int_in_range({},{})", lb, ub)
 }
-
+fn int_in_set(_set: &[i128]) -> String {
+    panic!("TODO: int_in_set ..")
+}
+fn float_in_range(lb: &f64, ub: &f64) -> String {
+    format!("float_in_range(\"{}\",\"{}\")", lb, ub)
+}
+fn set_of_int_in_range(lb: &i128, ub: &i128) -> String {
+    format!("set_of_int_in_range(\"{}\",\"{}\")", lb, ub)
+}
+fn set_of_int_in_set(_set: &[i128]) -> String {
+    panic!("TODO: subset_of_int_in_set ..")
+}
 fn print_constraint(c: &ConstraintItem, i: usize) {
     println!("constraint(c{},{}).", i, identifier(&c.id));
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
-            Expr::BasicExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, basic_expr(&e)),
-            Expr::ArrayLiteral(v) => {
+            Expr::BoolExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, bool_expr(&e)),
+            Expr::IntExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, int_expr(&e)),
+            Expr::FloatExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, float_expr(&e)),
+            Expr::SetExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, set_expr(&e)),
+            Expr::ArrayOfBool(v) => {
                 println!("in_constraint(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
@@ -247,8 +542,32 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
                         i,
                         cpos,
                         apos,
-                        basic_expr(&ae)
+                        bool_expr(&ae)
                     );
+                }
+            }
+            Expr::ArrayOfInt(v) => {
+                println!("in_constraint(c{},{},array).", i, cpos);
+                for (apos, ae) in v.iter().enumerate() {
+                    println!("in_constraint(c{},{},{},{}).", i, cpos, apos, int_expr(&ae));
+                }
+            }
+            Expr::ArrayOfFloat(v) => {
+                println!("in_constraint(c{},{},array).", i, cpos);
+                for (apos, ae) in v.iter().enumerate() {
+                    println!(
+                        "in_constraint(c{},{},{},{}).",
+                        i,
+                        cpos,
+                        apos,
+                        float_expr(&ae)
+                    );
+                }
+            }
+            Expr::ArrayOfSet(v) => {
+                println!("in_constraint(c{},{},array).", i, cpos);
+                for (apos, ae) in v.iter().enumerate() {
+                    println!("in_constraint(c{},{},{},{}).", i, cpos, apos, set_expr(&ae));
                 }
             }
         }
@@ -257,8 +576,10 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
 fn print_solve_item(i: &SolveItem) {
     match &i.goal {
         Goal::Satisfy => println!("solve(satisfy)."),
-        Goal::Maximize(e) => println!("solve(maximize,{}).", basic_expr(&e)),
-        Goal::Minimize(e) => println!("solve(minimize,{}).", basic_expr(&e)),
+        Goal::OptimizeBool(ot, e) => println!("solve({},{}).", opt_type(ot), bool_expr(&e)),
+        Goal::OptimizeInt(ot, e) => println!("solve({},{}).", opt_type(ot), int_expr(&e)),
+        Goal::OptimizeFloat(ot, e) => println!("solve({},{}).", opt_type(ot), float_expr(&e)),
+        Goal::OptimizeSet(ot, e) => println!("solve({},{}).", opt_type(ot), set_expr(&e)),
     }
 }
 fn basic_par_type(t: &BasicParType) -> String {
@@ -273,7 +594,17 @@ fn basic_pred_par_type(t: &BasicPredParType) -> String {
     match t {
         BasicPredParType::BasicParType(t) => basic_par_type(t),
         BasicPredParType::BasicVarType(t) => basic_var_type(t),
-        BasicPredParType::Domain(d) => domain(d),
+        BasicPredParType::FloatInRange(lb, ub) => float_in_range(lb, ub),
+        BasicPredParType::IntInRange(lb, ub) => int_in_range(lb, ub),
+        BasicPredParType::IntInSet(set) => int_in_set(set),
+        BasicPredParType::SubsetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
+        BasicPredParType::SubsetOfIntInSet(set) => set_of_int_in_set(set),
+    }
+}
+fn opt_type(opt_type: &OptimizationType) -> String {
+    match opt_type {
+        OptimizationType::Minimize => "minimize".to_string(),
+        OptimizationType::Maximize => "maximize".to_string(),
     }
 }
 fn index(IndexSet(i): &IndexSet) -> String {
@@ -288,43 +619,29 @@ fn pred_index(is: &PredIndexSet) -> String {
         PredIndexSet::Int => "int".to_string(),
     }
 }
-fn par_expr_array_expr(e: &ParExpr) -> &[BasicLiteralExpr] {
-    match e {
-        ParExpr::ParArrayLiteral(v) => v,
-        ParExpr::BasicLiteralExpr(_l) => panic!(
-            "I think this should be an array, but its a basic-literal-expr! Maybe use par_expr?"
-        ),
-    }
-}
-fn par_expr_basic_literal_expr(e: &ParExpr) -> String {
-    match e {
-        ParExpr::ParArrayLiteral(_v) => panic!(
-            "I think this should be a basic-literal-expr, but its an array! Maybe use par_expr?"
-        ),
-        ParExpr::BasicLiteralExpr(l) => basic_literal_expr(l),
-    }
-}
-// fn par_expr(e: &ParExpr) -> (String, String) {
-//     match e {
-//         ParExpr::ParArrayLiteral(v) => {
-//             let mut x = String::new();
-//             for e in v {
-//                 if x.is_empty() {
-//                     x = format!("in_array({},{},{})", basic_literal_expr(e));
-//                 } else {
-//                     x = format!("{},{}", x, basic_literal_expr(e));
-//                 }
-//             }
-//             ("array".into(), x)
-//         }
-//         ParExpr::BasicLiteralExpr(l) => (basic_literal_expr(l), String::new()),
-//     }
-// }
 
-fn basic_expr(e: &BasicExpr) -> String {
+fn bool_expr(e: &BoolExpr) -> String {
     match e {
-        BasicExpr::BasicLiteralExpr(e) => basic_literal_expr(e),
-        BasicExpr::VarParIdentifier(s) => identifier(s),
+        BoolExpr::Bool(b) => b.to_string(),
+        BoolExpr::VarParIdentifier(s) => identifier(s),
+    }
+}
+fn int_expr(e: &IntExpr) -> String {
+    match e {
+        IntExpr::Int(i) => i.to_string(),
+        IntExpr::VarParIdentifier(s) => identifier(s),
+    }
+}
+fn float_expr(e: &FloatExpr) -> String {
+    match e {
+        FloatExpr::Float(f) => format!("\"{}\"", f),
+        FloatExpr::VarParIdentifier(s) => identifier(s),
+    }
+}
+fn set_expr(e: &SetExpr) -> String {
+    match e {
+        SetExpr::Set(sl) => set_literal(sl),
+        SetExpr::VarParIdentifier(s) => identifier(s),
     }
 }
 fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
