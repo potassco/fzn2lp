@@ -279,7 +279,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             float: None,
             annos,
         } => {
-            println!("variable({},{}).", float_in_range(lb, ub), identifier(id));
+            println!("variable({},{}).", float_in_range(*lb, *ub), identifier(id));
         }
         VarDeclItem::FloatInRange {
             id,
@@ -290,7 +290,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             println!(
                 "variable({},{},{}).",
-                float_in_range(lb, ub),
+                float_in_range(*lb, *ub),
                 identifier(id),
                 float_expr(e)
             );
@@ -437,7 +437,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             println!(
                 "variable(array({},{}),{}).",
                 index(ix),
-                float_in_range(lb, ub),
+                float_in_range(*lb, *ub),
                 identifier(id),
             );
             for (pos, e) in array_literal.iter().enumerate() {
@@ -500,7 +500,7 @@ fn basic_var_type(t: &BasicVarType) -> String {
         BasicVarType::IntInRange(lb, ub) => int_in_range(lb, ub),
         BasicVarType::IntInSet(set) => int_in_set(set),
         BasicVarType::Float => "float".to_string(),
-        BasicVarType::FloatInRange(lb, ub) => float_in_range(lb, ub),
+        BasicVarType::FloatInRange(lb, ub) => float_in_range(*lb, *ub),
         BasicVarType::SetOfInt => "set_of_int".to_string(),
         BasicVarType::SetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
         BasicVarType::SetOfIntInSet(set) => set_of_int_in_set(set),
@@ -513,7 +513,7 @@ fn int_in_range(lb: &i128, ub: &i128) -> String {
 fn int_in_set(_set: &[i128]) -> String {
     panic!("TODO: int_in_set ..")
 }
-fn float_in_range(lb: &f64, ub: &f64) -> String {
+fn float_in_range(lb: f64, ub: f64) -> String {
     format!("float_in_range(\"{}\",\"{}\")", lb, ub)
 }
 fn set_of_int_in_range(lb: &i128, ub: &i128) -> String {
@@ -526,10 +526,13 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
     println!("constraint(c{},{}).", i, identifier(&c.id));
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
-            Expr::BoolExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, bool_expr(&e)),
-            Expr::IntExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, int_expr(&e)),
-            Expr::FloatExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, float_expr(&e)),
-            Expr::SetExpr(e) => println!("in_constraint(c{},{},{}).", i, cpos, set_expr(&e)),
+            Expr::VarParIdentifier(id) => {
+                println!("in_constraint(c{},{},{}).", i, cpos, identifier(id))
+            }
+            Expr::Bool(e) => println!("in_constraint(c{},{},{}).", i, cpos, bool_literal(*e)),
+            Expr::Int(e) => println!("in_constraint(c{},{},{}).", i, cpos, int_literal(&e)),
+            Expr::Float(e) => println!("in_constraint(c{},{},{}).", i, cpos, float_literal(*e)),
+            Expr::Set(e) => println!("in_constraint(c{},{},{}).", i, cpos, set_literal(&e)),
             Expr::ArrayOfBool(v) => {
                 println!("in_constraint(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
@@ -590,7 +593,7 @@ fn basic_pred_par_type(t: &BasicPredParType) -> String {
     match t {
         BasicPredParType::BasicParType(t) => basic_par_type(t),
         BasicPredParType::BasicVarType(t) => basic_var_type(t),
-        BasicPredParType::FloatInRange(lb, ub) => float_in_range(lb, ub),
+        BasicPredParType::FloatInRange(lb, ub) => float_in_range(*lb, *ub),
         BasicPredParType::IntInRange(lb, ub) => int_in_range(lb, ub),
         BasicPredParType::IntInSet(set) => int_in_set(set),
         BasicPredParType::SetOfIntInRange(lb, ub) => set_of_int_in_range(lb, ub),
@@ -606,8 +609,8 @@ fn opt_type(opt_type: &OptimizationType) -> String {
 fn index(IndexSet(i): &IndexSet) -> String {
     i.to_string()
 }
-fn identifier(s: &str) -> String {
-    format!("\"{}\"", s)
+fn identifier(id: &str) -> String {
+    format!("\"{}\"", id)
 }
 fn pred_index(is: &PredIndexSet) -> String {
     match is {
@@ -615,29 +618,41 @@ fn pred_index(is: &PredIndexSet) -> String {
         PredIndexSet::Int => "int".to_string(),
     }
 }
-
 fn bool_expr(e: &BoolExpr) -> String {
     match e {
-        BoolExpr::Bool(b) => b.to_string(),
-        BoolExpr::VarParIdentifier(s) => identifier(s),
+        BoolExpr::Bool(b) => bool_literal(*b),
+        BoolExpr::VarParIdentifier(id) => identifier(id),
+    }
+}
+fn bool_literal(b: bool) -> String {
+    if b {
+        "true".to_string()
+    } else {
+        "false".to_string()
     }
 }
 fn int_expr(e: &IntExpr) -> String {
     match e {
-        IntExpr::Int(i) => i.to_string(),
-        IntExpr::VarParIdentifier(s) => identifier(s),
+        IntExpr::Int(i) => int_literal(i),
+        IntExpr::VarParIdentifier(id) => identifier(id),
     }
+}
+fn int_literal(i: &i128) -> String {
+    i.to_string()
 }
 fn float_expr(e: &FloatExpr) -> String {
     match e {
-        FloatExpr::Float(f) => format!("\"{}\"", f),
-        FloatExpr::VarParIdentifier(s) => identifier(s),
+        FloatExpr::Float(f) => float_literal(*f),
+        FloatExpr::VarParIdentifier(id) => identifier(id),
     }
+}
+fn float_literal(f: f64) -> String {
+    format!("\"{}\"", f)
 }
 fn set_expr(e: &SetExpr) -> String {
     match e {
         SetExpr::Set(sl) => set_literal(sl),
-        SetExpr::VarParIdentifier(s) => identifier(s),
+        SetExpr::VarParIdentifier(id) => identifier(id),
     }
 }
 fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
