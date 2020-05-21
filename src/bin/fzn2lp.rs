@@ -198,7 +198,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             expr: Some(e),
             annos,
         } => {
-            println!("variable(bool,{},{}).", identifier(id), e.to_string());
+            println!("variable(bool,{},{}).", identifier(id), bool_expr(e));
         }
         VarDeclItem::Int {
             id,
@@ -212,7 +212,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             expr: Some(e),
             annos,
         } => {
-            println!("variable(int,{},{}).", identifier(id), e.to_string());
+            println!("variable(int,{},{}).", identifier(id), int_expr(e));
         }
         VarDeclItem::IntInRange {
             id,
@@ -234,7 +234,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 "variable({},{},{}).",
                 int_in_range(lb, ub),
                 identifier(id),
-                e.to_string()
+                int_expr(e)
             );
         }
         VarDeclItem::IntInSet {
@@ -255,7 +255,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 "variable({},{},{}).",
                 int_in_set(set),
                 identifier(id),
-                e.to_string()
+                int_expr(e)
             );
         }
         VarDeclItem::Float {
@@ -270,7 +270,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             expr: Some(e),
             annos,
         } => {
-            println!("variable(float,{},{}).", identifier(id), e.to_string());
+            println!("variable(float,{},{}).", identifier(id), float_expr(e));
         }
         VarDeclItem::FloatInRange {
             id,
@@ -289,10 +289,10 @@ fn print_var_decl_item(item: &VarDeclItem) {
             annos,
         } => {
             println!(
-                "variable({},{},\"{}\").",
+                "variable({},{},{}).",
                 float_in_range(lb, ub),
                 identifier(id),
-                e.to_string()
+                float_expr(e)
             );
         }
         VarDeclItem::SetOfInt {
@@ -307,11 +307,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             annos,
             expr: Some(e),
         } => {
-            println!(
-                "variable(set_of_int,{},{}).",
-                identifier(id),
-                set_literal(e)
-            );
+            println!("variable(set_of_int,{},{}).", identifier(id), set_expr(e));
         }
         VarDeclItem::SetOfIntInRange {
             id,
@@ -337,7 +333,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 "variable({},{},{}).",
                 set_of_int_in_range(lb, ub),
                 identifier(id),
-                set_literal(e)
+                set_expr(e)
             );
         }
         VarDeclItem::SetOfIntInSet {
@@ -358,7 +354,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 "variable({},{},{}).",
                 set_of_int_in_set(set),
                 identifier(id),
-                set_literal(e)
+                set_expr(e)
             );
         }
 
@@ -654,10 +650,10 @@ fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
 }
 fn set_literal(l: &SetLiteral) -> String {
     match l {
-        SetLiteral::FloatRange(f1, f2) => format!("range_i(\"{}\",\"{}\")", f1, f2),
+        SetLiteral::FloatRange(f1, f2) => format!("range_f(\"{}\",\"{}\")", f1, f2),
         SetLiteral::IntRange(i1, i2) => format!("range_i({},{})", i1, i2),
-        SetLiteral::SetFloats(v) => set_floats(v),
-        SetLiteral::SetInts(v) => set_ints(v),
+        SetLiteral::SetFloats(v) => panic!("TODO: set_floats(v)"),
+        SetLiteral::SetInts(v) => panic!("TODO: set_ints(v)"),
     }
 }
 fn set_floats(v: &[f64]) -> String {
