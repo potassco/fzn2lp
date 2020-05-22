@@ -661,8 +661,8 @@ fn set_literal(l: &SetLiteral) -> String {
     match l {
         SetLiteral::FloatRange(f1, f2) => format!(
             "set_float_range({},{})",
-            float_literal(f1),
-            float_literal(f2)
+            float_literal(*f1),
+            float_literal(*f2)
         ),
         SetLiteral::IntRange(i1, i2) => format!("set_int_range({},{})", i1, i2),
         SetLiteral::SetFloats(v) => panic!("TODO: set_of_floats(v\")"),
