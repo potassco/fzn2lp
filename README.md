@@ -168,7 +168,7 @@ Basic types are:
 - `int_in_range(lb,ub)` where `lb` and `ub` are integers,
 - `float_in_range(lb,ub)` where `lb` and `ub` are quoted float literals,
 - `set_of_int_in_range(lb,ub)`  where `lb` and `ub` are integers,
-<!-- - `set_of_int_in_range(u,v)` -->
+<!-- - `set_of_int_in_set(set_id)` where set_id is the id of a set -->
 
 Further types are:
 
