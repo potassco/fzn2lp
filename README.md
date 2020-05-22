@@ -123,7 +123,7 @@ For example:
 Constraints are presented by facts of form:
 
     constraint(ConstraintId, ConstraintName).
-    in_constraint(ConstraintId, ConstraintName, Pos, Expr).
+    in_constraint(ConstraintId, Pos, Expr).
 
 If the constraint parameter is of type array the following predicate is used to represent the elements of the array.
 
@@ -160,8 +160,16 @@ is represented as:
 
 ### Parameter/variable types
 
-Basic types are `bool`, `int` and `float`. Further types are:
+Basic types are:
 
-- `range_i(u,v)` where `u` and `v` are integers, 
-- `range_f(u,v)` where `u` and `v` are quoted float literals,
-- `array(i,t)`  where `i` is an integer or `int` and `t` is a basic type..
+- `bool`
+- `int`
+- `float`
+- `int_in_range(lb,ub)` where `lb` and `ub` are integers,
+- `float_in_range(lb,ub)` where `lb` and `ub` are quoted float literals,
+- `set_of_int_in_range(lb,ub)`  where `lb` and `ub` are integers,
+<!-- - `set_of_int_in_set(set_id)` where set_id is the id of a set -->
+
+Further types are:
+
+- `array(i,t)`  where `i` is an integer denoting the length of the array or `int` and `t` is a basic type..
