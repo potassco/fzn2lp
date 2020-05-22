@@ -155,31 +155,33 @@ fn print_par_decl_item(item: &ParDeclItem) {
             identifier(id),
             set_literal(sl)
         ),
-        ParDeclItem::Array {
-            ix,
-            par_type,
-            id,
-            expr,
-        } => {
-            let array_elements = match expr {
-                    ParExpr::ParArrayLiteral(v) => v,
-                    other => panic!(
-                        "I think this should be an array, but its a basic-literal-expr: {:#?}! Maybe use par_expr?",other
-                    ),
-                };
-            println!(
-                "parameter(array({},{}),{}).",
-                index(ix),
-                basic_par_type(&par_type),
-                identifier(id)
-            );
-            for (pos, e) in array_elements.iter().enumerate() {
+        ParDeclItem::ArrayOfBool { ix, id, expr } => {
+            println!("parameter(array({},bool),{}).", index(ix), identifier(id));
+            for (pos, e) in expr.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, bool_literal(*e));
+            }
+        }
+        ParDeclItem::ArrayOfInt { ix, id, expr } => {
+            println!("parameter(array({},int),{}).", index(ix), identifier(id));
+            for (pos, e) in expr.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, int_literal(e));
+            }
+        }
+        ParDeclItem::ArrayOfFloat { ix, id, expr } => {
+            println!("parameter(array({},float),{}).", index(ix), identifier(id));
+            for (pos, e) in expr.iter().enumerate() {
                 println!(
                     "in_array({},{},{}).",
                     identifier(id),
                     pos,
-                    basic_literal_expr(e)
+                    float_literal(*e)
                 );
+            }
+        }
+        ParDeclItem::ArrayOfSet { ix, id, expr } => {
+            println!("parameter(array({},set),{}).", index(ix), identifier(id));
+            for (pos, e) in expr.iter().enumerate() {
+                println!("in_array({},{},{}).", identifier(id), pos, set_literal(e));
             }
         }
     }
@@ -655,20 +657,16 @@ fn set_expr(e: &SetExpr) -> String {
         SetExpr::VarParIdentifier(id) => identifier(id),
     }
 }
-fn basic_literal_expr(e: &BasicLiteralExpr) -> String {
-    match e {
-        BasicLiteralExpr::Bool(b) => b.to_string(),
-        BasicLiteralExpr::Float(f) => format!("\"{}\"", f),
-        BasicLiteralExpr::Int(i) => i.to_string(),
-        BasicLiteralExpr::Set(s) => set_literal(s),
-    }
-}
 fn set_literal(l: &SetLiteral) -> String {
     match l {
-        SetLiteral::FloatRange(f1, f2) => format!("range_f(\"{}\",\"{}\")", f1, f2),
-        SetLiteral::IntRange(i1, i2) => format!("range_i({},{})", i1, i2),
-        SetLiteral::SetFloats(v) => panic!("TODO: set_floats(v)"),
-        SetLiteral::SetInts(v) => panic!("TODO: set_ints(v)"),
+        SetLiteral::FloatRange(f1, f2) => format!(
+            "set_float_range({},{})",
+            float_literal(f1),
+            float_literal(f2)
+        ),
+        SetLiteral::IntRange(i1, i2) => format!("set_int_range({},{})", i1, i2),
+        SetLiteral::SetFloats(v) => panic!("TODO: set_of_floats(v\")"),
+        SetLiteral::SetInts(v) => panic!("TODO: set_of_ints(v)"),
     }
 }
 fn set_floats(v: &[f64]) -> String {

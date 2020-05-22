@@ -160,8 +160,16 @@ is represented as:
 
 ### Parameter/variable types
 
-Basic types are `bool`, `int` and `float`. Further types are:
+Basic types are:
 
-- `range_i(u,v)` where `u` and `v` are integers,
-- `range_f(u,v)` where `u` and `v` are quoted float literals,
-- `array(i,t)`  where `i` is an integer or `int` and `t` is a basic type..
+- `bool`
+- `int`
+- `float`
+- `int_in_range(lb,ub)` where `lb` and `ub` are integers,
+- `float_in_range(lb,ub)` where `lb` and `ub` are quoted float literals,
+- `set_of_int_in_range(lb,ub)`  where `lb` and `ub` are integers,
+<!-- - `set_of_int_in_range(u,v)` -->
+
+Further types are:
+
+- `array(i,t)`  where `i` is an integer denoting the length of the array or `int` and `t` is a basic type..
