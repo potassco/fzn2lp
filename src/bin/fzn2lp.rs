@@ -61,6 +61,9 @@ fn match_fz_stmt(input: &str, counter: &mut usize, level: &mut i32) -> Result<()
     match fz_statement::<VerboseError<&str>>(&input) {
         Ok((_rest, stmt)) => {
             match stmt {
+                FzStmt::Comment(s) => {
+                    println!("% {}", s);
+                }
                 FzStmt::Predicate(pred) => {
                     if *level > 1 {
                         warn!("Statements in wrong order.");
@@ -137,12 +140,12 @@ fn print_predicate(item: &PredicateItem) {
 fn print_par_decl_item(item: &ParDeclItem) {
     match item {
         ParDeclItem::Bool { id, bool } => {
-            print!("parameter(bool, {},{}).", identifier(id), bool.to_string())
+            println!("parameter(bool, {},{}).", identifier(id), bool.to_string())
         }
         ParDeclItem::Int { id, int } => {
-            print!("parameter(int, {},{}).", identifier(id), int.to_string())
+            println!("parameter(int, {},{}).", identifier(id), int.to_string())
         }
-        ParDeclItem::Float { id, float } => print!(
+        ParDeclItem::Float { id, float } => println!(
             "parameter(float, {},{}).",
             identifier(id),
             float.to_string()
@@ -150,7 +153,7 @@ fn print_par_decl_item(item: &ParDeclItem) {
         ParDeclItem::SetOfInt {
             id,
             set_literal: sl,
-        } => print!(
+        } => println!(
             "parameter(set_of_int, {},{}).",
             identifier(id),
             set_literal(sl)
