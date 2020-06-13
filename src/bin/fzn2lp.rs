@@ -466,7 +466,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for (pos, e) in array_literal.iter().enumerate() {
                 println!(
-                    "variable(array({},int),{},array_of_int_in_range({},{},{},{})).",
+                    "variable(array({},int_in_range({},{})),{},array_of_int({},{})).",
                     index(ix),
                     identifier(id),
                     lb,
@@ -502,9 +502,14 @@ fn print_var_decl_item(item: &VarDeclItem) {
             annos,
             array_literal,
         } => {
-            println!("variable(array({},float),{}).", index(ix), identifier(id),);
             for (pos, e) in array_literal.iter().enumerate() {
-                println!("in_array({},{},{}).", identifier(id), pos, float_expr(e));
+                println!(
+                    "variable(array({},float),{},array_of_float({},{})).",
+                    index(ix),
+                    identifier(id),
+                    pos,
+                    float_expr(e)
+                );
             }
         }
         VarDeclItem::ArrayOfFloatInRange {
@@ -515,14 +520,15 @@ fn print_var_decl_item(item: &VarDeclItem) {
             array_literal,
             annos,
         } => {
-            println!(
-                "variable(array({},{}),{}).",
-                index(ix),
-                float_in_range(*lb, *ub),
-                identifier(id),
-            );
             for (pos, e) in array_literal.iter().enumerate() {
-                println!("in_array({},{},{}).", identifier(id), pos, float_expr(e));
+                println!(
+                    "variable(array({},{}),{},array_of_float({},{})).",
+                    index(ix),
+                    float_in_range(*lb, *ub),
+                    identifier(id),
+                    pos,
+                    float_expr(e)
+                );
             }
         }
         VarDeclItem::ArrayOfSet {
@@ -531,11 +537,16 @@ fn print_var_decl_item(item: &VarDeclItem) {
             array_literal,
             annos,
         } => {
-            println!("variable(array({},set),{}).", index(ix), identifier(id),);
             for (pos, e) in array_literal.iter().enumerate() {
                 let set = set_expr(e);
                 for element in set {
-                    println!("in_array({},{},{}).", identifier(id), pos, element);
+                    println!(
+                        "variable(array({},set),{},array_of_set({},{})).",
+                        index(ix),
+                        identifier(id),
+                        pos,
+                        element
+                    );
                 }
             }
         }
@@ -547,16 +558,17 @@ fn print_var_decl_item(item: &VarDeclItem) {
             array_literal,
             annos,
         } => {
-            println!(
-                "variable(array({},{}),{}).",
-                index(ix),
-                set_of_int_in_range(lb, ub),
-                identifier(id),
-            );
             for (pos, e) in array_literal.iter().enumerate() {
                 let set = set_expr(e);
                 for element in set {
-                    println!("in_array({},{},{}).", identifier(id), pos, element);
+                    println!(
+                        "variable(array({},{}),{}, array_of_set({},{})).",
+                        index(ix),
+                        set_of_int_in_range(lb, ub),
+                        identifier(id),
+                        pos,
+                        element
+                    );
                 }
             }
         }
