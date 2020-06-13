@@ -47,6 +47,9 @@ fn run() -> Result<()> {
             buf.clear();
         }
     }
+    if level < 5 {
+        Err(FlatZincError::NoSolveItem)?;
+    }
     Ok(())
 }
 use thiserror::Error;
@@ -54,6 +57,8 @@ use thiserror::Error;
 pub enum FlatZincError {
     #[error("More than one solve item")]
     MultipleSolveItems,
+    #[error("No solve item")]
+    NoSolveItem,
     #[error("ParseError: {msg}")]
     ParseError { msg: String },
 }
