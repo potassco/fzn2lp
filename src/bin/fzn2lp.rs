@@ -157,15 +157,19 @@ fn print_predicate(item: &PredicateItem) {
 fn print_par_decl_item(item: &ParDeclItem) {
     match item {
         ParDeclItem::Bool { id, bool } => {
-            println!("parameter(bool, {},{}).", identifier(id), bool.to_string());
+            println!(
+                "parameter(bool,{},{}).",
+                identifier(id),
+                bool_literal(*bool)
+            );
         }
         ParDeclItem::Int { id, int } => {
-            println!("parameter(int, {},{}).", identifier(id), int.to_string())
+            println!("parameter(int,{},{}).", identifier(id), int_literal(int))
         }
         ParDeclItem::Float { id, float } => println!(
-            "parameter(float, {},{}).",
+            "parameter(float,{},{}).",
             identifier(id),
-            float.to_string()
+            float_literal(*float)
         ),
         ParDeclItem::SetOfInt {
             id,
@@ -606,15 +610,23 @@ fn int_in_set(set: &[i128]) -> Vec<String> {
     ret
 }
 fn float_in_range(lb: f64, ub: f64) -> String {
-    format!("float_in_range(\"{}\",\"{}\")", lb, ub)
+    format!(
+        "float_in_range({},{})",
+        float_literal(lb),
+        float_literal(ub)
+    )
 }
 fn set_of_int_in_range(lb: &i128, ub: &i128) -> String {
-    format!("set_of_int_in_range(\"{}\",\"{}\")", lb, ub)
+    format!(
+        "set_of_int_in_range({},{})",
+        int_literal(lb),
+        int_literal(ub)
+    )
 }
 fn set_of_int_in_set(set: &[i128]) -> Vec<String> {
     let mut ret = vec![];
-    for integer in set {
-        ret.push(format!("set_of_int_in_set({})", integer))
+    for i in set {
+        ret.push(format!("set_of_int_in_set({})", int_literal(i)))
     }
     ret
 }
@@ -782,7 +794,7 @@ fn set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
         }
         SetLiteralExpr::SetFloats(v) => {
             for f in v {
-                ret.push(format!("set_of_float(\"{}\")", float_expr(f)));
+                ret.push(format!("set_of_float({})", float_expr(f)));
             }
         }
         SetLiteralExpr::SetInts(v) => {
@@ -804,7 +816,7 @@ fn set_literal(l: &SetLiteral) -> Vec<String> {
         SetLiteral::IntRange(i1, i2) => ret.push(format!("set_int_range({},{})", i1, i2)),
         SetLiteral::SetFloats(v) => {
             for f in v {
-                ret.push(format!("set_of_float(\"{}\")", f));
+                ret.push(format!("set_of_float({})", float_literal(*f)));
             }
         }
         SetLiteral::SetInts(v) => {
