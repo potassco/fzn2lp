@@ -124,30 +124,29 @@ fn print_fz_stmt(
     }
 }
 
-fn print_predicate(item: &PredicateItem) {
-    println!("predicate({}).", identifier(&item.id));
-    for (pos, p) in item.parameters.iter().enumerate() {
+fn print_predicate(predicate: &PredicateItem) {
+    println!("predicate({}).", identifier(&predicate.id));
+    for (pos, p) in predicate.parameters.iter().enumerate() {
         match p {
             (PredParType::Basic(par_type), id) => {
                 for element in basic_pred_par_type(&par_type) {
                     println!(
                         "predicate_parameter({},{},{},{}).",
-                        identifier(&item.id),
+                        identifier(&predicate.id),
                         pos,
-                        element,
-                        identifier(id)
+                        identifier(id),
+                        element
                     )
                 }
             }
             (PredParType::Array { ix, par_type }, id) => {
                 for element in basic_pred_par_type(&par_type) {
                     println!(
-                        "predicate_parameter({},{},array({},{}),{}).",
-                        identifier(&item.id),
+                        "predicate_parameter({},{},{},{}).",
+                        identifier(&predicate.id),
                         pos,
-                        pred_index(&ix),
-                        element,
-                        identifier(id)
+                        identifier(id),
+                        array_type(&pred_index(&ix), &element)
                     )
                 }
             }
@@ -158,16 +157,16 @@ fn print_par_decl_item(item: &ParDeclItem) {
     match item {
         ParDeclItem::Bool { id, bool } => {
             println!(
-                "parameter(bool,{},{}).",
+                "parameter({},bool,{}).",
                 identifier(id),
                 bool_literal(*bool)
             );
         }
         ParDeclItem::Int { id, int } => {
-            println!("parameter(int,{},{}).", identifier(id), int_literal(int))
+            println!("parameter({},int,{}).", identifier(id), int_literal(int))
         }
         ParDeclItem::Float { id, float } => println!(
-            "parameter(float,{},{}).",
+            "parameter({},float,{}).",
             identifier(id),
             float_literal(*float)
         ),
@@ -177,15 +176,15 @@ fn print_par_decl_item(item: &ParDeclItem) {
         } => {
             let set = set_literal(sl);
             for element in set {
-                println!("parameter(set_of_int, {},{}).", identifier(id), element);
+                println!("parameter({},set_of_int,{}).", identifier(id), element);
             }
         }
         ParDeclItem::ArrayOfBool { ix, id, expr } => {
             for (pos, e) in expr.iter().enumerate() {
                 println!(
-                    "parameter(array({},bool),{},array_of_bool({},{})).",
-                    index(ix),
+                    "parameter({},{},array_of_bool({},{})).",
                     identifier(id),
+                    array_type(&index(ix), "bool"),
                     pos,
                     bool_literal(*e)
                 );
@@ -194,9 +193,9 @@ fn print_par_decl_item(item: &ParDeclItem) {
         ParDeclItem::ArrayOfInt { ix, id, expr } => {
             for (pos, e) in expr.iter().enumerate() {
                 println!(
-                    "parameter(array({},int),{},array_of_int({},{})).",
-                    index(ix),
+                    "parameter({},{},array_of_int({},{})).",
                     identifier(id),
+                    array_type(&index(ix), "int"),
                     pos,
                     int_literal(e)
                 );
@@ -205,9 +204,9 @@ fn print_par_decl_item(item: &ParDeclItem) {
         ParDeclItem::ArrayOfFloat { ix, id, expr } => {
             for (pos, e) in expr.iter().enumerate() {
                 println!(
-                    "parameter(array({},float),{},array_of_float({},{})).",
-                    index(ix),
+                    "parameter({},{},array_of_float({},{})).",
                     identifier(id),
+                    array_type(&index(ix), "float"),
                     pos,
                     float_literal(*e)
                 );
@@ -218,9 +217,9 @@ fn print_par_decl_item(item: &ParDeclItem) {
                 let set = set_literal(e);
                 for element in set {
                     println!(
-                        "parameter(array({},set),{},array_of_set({},{})).",
-                        index(ix),
+                        "parameter({},{},array_of_set({},{})).",
                         identifier(id),
+                        array_type(&index(ix), "set"),
                         pos,
                         element
                     );
@@ -236,28 +235,28 @@ fn print_var_decl_item(item: &VarDeclItem) {
             expr: None,
             annos,
         } => {
-            println!("variable(bool,{}).", identifier(id));
+            println!("variable({},bool).", identifier(id));
         }
         VarDeclItem::Bool {
             id,
             expr: Some(e),
             annos,
         } => {
-            println!("variable(bool,{},{}).", identifier(id), bool_expr(e));
+            println!("variable({},bool,{}).", identifier(id), bool_expr(e));
         }
         VarDeclItem::Int {
             id,
             expr: None,
             annos,
         } => {
-            println!("variable(int,{}).", identifier(id));
+            println!("variable({},int).", identifier(id));
         }
         VarDeclItem::Int {
             id,
             expr: Some(e),
             annos,
         } => {
-            println!("variable(int,{},{}).", identifier(id), int_expr(e));
+            println!("variable({},int,{}).", identifier(id), int_expr(e));
         }
         VarDeclItem::IntInRange {
             id,
@@ -266,7 +265,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             int: None,
             annos,
         } => {
-            println!("variable({},{}).", int_in_range(lb, ub), identifier(id));
+            println!("variable({},{}).", identifier(id), int_in_range(lb, ub));
         }
         VarDeclItem::IntInRange {
             id,
@@ -277,8 +276,8 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             println!(
                 "variable({},{},{}).",
-                int_in_range(lb, ub),
                 identifier(id),
+                int_in_range(lb, ub),
                 int_expr(e)
             );
         }
@@ -289,7 +288,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             annos,
         } => {
             for element in set {
-                println!("variable(int_in_set({}),{}).", element, identifier(id));
+                println!("variable({},int_in_set({})).", identifier(id), element);
             }
         }
         VarDeclItem::IntInSet {
@@ -300,9 +299,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for element in set {
                 println!(
-                    "variable(int_in_set({}),{},{}).",
-                    element,
+                    "variable({},int_in_set({}),{}).",
                     identifier(id),
+                    element,
                     int_expr(e)
                 );
             }
@@ -312,14 +311,14 @@ fn print_var_decl_item(item: &VarDeclItem) {
             annos,
             expr: None,
         } => {
-            println!("variable(float,{}).", identifier(id));
+            println!("variable({},float).", identifier(id));
         }
         VarDeclItem::Float {
             id,
             expr: Some(e),
             annos,
         } => {
-            println!("variable(float,{},{}).", identifier(id), float_expr(e));
+            println!("variable({},float,{}).", identifier(id), float_expr(e));
         }
         VarDeclItem::FloatInRange {
             id,
@@ -328,7 +327,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             float: None,
             annos,
         } => {
-            println!("variable({},{}).", float_in_range(*lb, *ub), identifier(id));
+            println!("variable({},{}).", identifier(id), float_in_range(*lb, *ub));
         }
         VarDeclItem::FloatInRange {
             id,
@@ -339,8 +338,8 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             println!(
                 "variable({},{},{}).",
-                float_in_range(*lb, *ub),
                 identifier(id),
+                float_in_range(*lb, *ub),
                 float_expr(e)
             );
         }
@@ -349,7 +348,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
             expr: None,
             annos,
         } => {
-            println!("variable(set_of_int,{}).", identifier(id));
+            println!("variable({},set_of_int).", identifier(id));
         }
         VarDeclItem::SetOfInt {
             id,
@@ -358,7 +357,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             let set = set_expr(e);
             for element in set {
-                println!("variable(set_of_int,{},{}).", identifier(id), element);
+                println!("variable({},set_of_int,{}).", identifier(id), element);
             }
         }
         VarDeclItem::SetOfIntInRange {
@@ -370,8 +369,8 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             println!(
                 "variable({},{}).",
+                identifier(id),
                 set_of_int_in_range(lb, ub),
-                identifier(id)
             );
         }
         VarDeclItem::SetOfIntInRange {
@@ -385,8 +384,8 @@ fn print_var_decl_item(item: &VarDeclItem) {
             for element in set {
                 println!(
                     "variable({},{},{}).",
-                    set_of_int_in_range(lb, ub),
                     identifier(id),
+                    set_of_int_in_range(lb, ub),
                     element
                 );
             }
@@ -399,9 +398,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for type_element in set {
                 println!(
-                    "variable(set_of_int_in_set({}),{}).",
+                    "variable({},set_of_int_in_set({})).",
+                    identifier(id),
                     type_element,
-                    identifier(id)
                 );
             }
         }
@@ -415,9 +414,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 let value_set = set_expr(e);
                 for element in value_set {
                     println!(
-                        "variable(set_of_int_in_set({}),{},{}).",
-                        type_element,
+                        "variable({},set_of_int_in_set({}),{}).",
                         identifier(id),
+                        type_element,
                         element
                     );
                 }
@@ -432,9 +431,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for (pos, e) in array_literal.iter().enumerate() {
                 println!(
-                    "variable(array({},bool),{},array_of_bool({},{})).",
-                    index(ix),
+                    "variable({},{},array_of_bool({},{})).",
                     identifier(id),
+                    array_type(&index(ix), "bool"),
                     pos,
                     bool_expr(e)
                 );
@@ -448,9 +447,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for (pos, e) in array_literal.iter().enumerate() {
                 println!(
-                    "variable(array({},int),{},array_of_int({},{})).",
-                    index(ix),
+                    "variable({},{},array_of_int({},{})).",
                     identifier(id),
+                    array_type(&index(ix), "int"),
                     pos,
                     int_expr(e)
                 );
@@ -466,11 +465,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for (pos, e) in array_literal.iter().enumerate() {
                 println!(
-                    "variable(array({},int_in_range({},{})),{},array_of_int({},{})).",
-                    index(ix),
+                    "variable({},{},array_of_int({},{})).",
                     identifier(id),
-                    lb,
-                    ub,
+                    array_type(&index(ix), &int_in_range(lb, ub)),
                     pos,
                     int_expr(e)
                 );
@@ -486,10 +483,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
             for (pos, e) in array_literal.iter().enumerate() {
                 for element in set {
                     println!(
-                        "variable(array({},int_in_set({})),{},{},{}).",
-                        index(ix),
-                        element,
+                        "variable({},{},{},{}).",
                         identifier(id),
+                        array_type(&index(ix), &format!("int_in_set({})", element)),
                         pos,
                         int_expr(e)
                     );
@@ -504,9 +500,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for (pos, e) in array_literal.iter().enumerate() {
                 println!(
-                    "variable(array({},float),{},array_of_float({},{})).",
-                    index(ix),
+                    "variable({},{},array_of_float({},{})).",
                     identifier(id),
+                    array_type(&index(ix), "float"),
                     pos,
                     float_expr(e)
                 );
@@ -522,10 +518,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
         } => {
             for (pos, e) in array_literal.iter().enumerate() {
                 println!(
-                    "variable(array({},{}),{},array_of_float({},{})).",
-                    index(ix),
-                    float_in_range(*lb, *ub),
+                    "variable({},{},array_of_float({},{})).",
                     identifier(id),
+                    array_type(&index(ix), &float_in_range(*lb, *ub)),
                     pos,
                     float_expr(e)
                 );
@@ -541,9 +536,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 let set = set_expr(e);
                 for element in set {
                     println!(
-                        "variable(array({},set),{},array_of_set({},{})).",
-                        index(ix),
+                        "variable({},{},array_of_set({},{})).",
                         identifier(id),
+                        array_type(&index(ix), "set"),
                         pos,
                         element
                     );
@@ -562,10 +557,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 let set = set_expr(e);
                 for element in set {
                     println!(
-                        "variable(array({},{}),{}, array_of_set({},{})).",
-                        index(ix),
-                        set_of_int_in_range(lb, ub),
+                        "variable({},{}, array_of_set({},{})).",
                         identifier(id),
+                        array_type(&index(ix), &set_of_int_in_range(lb, ub)),
                         pos,
                         element
                     );
@@ -584,10 +578,9 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     let setl = set_expr(e);
                     for element in setl {
                         println!(
-                            "variable(array({},set_of_int_in_set({})),{},{},{}).",
-                            index(ix),
-                            type_element,
+                            "variable({},{},{},{}).",
                             identifier(id),
+                            array_type(&index(ix), &format!("set_of_int_in_set({})", type_element)),
                             pos,
                             element
                         );
@@ -610,7 +603,6 @@ fn basic_var_type(t: &BasicVarType) -> Vec<String> {
         BasicVarType::SetOfIntInSet(set) => set_of_int_in_set(set),
     }
 }
-// TODO implement sets
 fn int_in_range(lb: &i128, ub: &i128) -> String {
     format!("int_in_range({},{})", lb, ub)
 }
@@ -737,6 +729,9 @@ fn basic_pred_par_type(t: &BasicPredParType) -> Vec<String> {
         BasicPredParType::SetOfIntInRange(lb, ub) => vec![set_of_int_in_range(lb, ub)],
         BasicPredParType::SetOfIntInSet(set) => set_of_int_in_set(set),
     }
+}
+fn array_type(idx: &str, element_type: &str) -> String {
+    format!("array({},{})", idx, element_type)
 }
 fn opt_type(opt_type: &OptimizationType) -> String {
     match opt_type {
