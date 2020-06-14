@@ -27,7 +27,7 @@ The executables can be found under `./target/release/`
 Predicate declarations are presented by facts of form:
 
     predicate(PredicateName).
-    predicate_parameter(PredicateName, Pos, ParameterType, ParameterName).
+    predicate_parameter(PredicateName, Pos, ParameterName, ParameterType).
 
 For example:
 
@@ -36,16 +36,16 @@ For example:
 is represented as:
 
     predicate("median_of_3").
-    predicate_parameter("median_of_3", 0, int, "x").
-    predicate_parameter("median_of_3", 1, int, "y").
-    predicate_parameter("median_of_3", 2, int, "z").
-    predicate_parameter("median_of_3", 3, int, "m").
+    predicate_parameter("median_of_3", 0, "x", int).
+    predicate_parameter("median_of_3", 1, "y", int).
+    predicate_parameter("median_of_3", 2, "z", int).
+    predicate_parameter("median_of_3", 3, "m", int).
 
 ### Parameter declarations
 
 Basic parameters are declared by facts of form:
 
-    parameter(ParameterType, ParameterName, ParameterExpression).
+    parameter(ParameterName, ParameterType, ParameterExpression).
 
 For example:
 
@@ -53,13 +53,13 @@ For example:
 
 is represented as:
 
-    parameter(bool, "X_21", true).
+    parameter("X_21", bool, true).
 
 For other parameter types see  [*Parameter/variable types*](#parametervariable-types).
 
 Parameters of type array are declared by facts of form
 
-    parameter(array(Index,BasicParameterType), ParameterName).
+    parameter(ParameterName, array(Index,BasicParameterType) ).
 
 For example:
 
@@ -67,7 +67,7 @@ For example:
 
 is represented as:
 
-    parameter(array(2,int), "X_22").
+    parameter("X_22", array(2,int)).
 
 For the representation of the array see [*Representation of arrays*](#representation-of-arrays)
 
@@ -75,7 +75,7 @@ For the representation of the array see [*Representation of arrays*](#representa
 
 Variable declarations are presented by facts of form:
 
-    variable(Type, VariableName).
+    variable(VariableName, Type).
 
 For example:
 
@@ -83,7 +83,7 @@ For example:
 
 is represented as:
 
-    variable(bool, "X_35").
+    variable("X_35", bool).
 
 For other parameter types see [*Parameter/variable types*](#parametervariable-types).
 
@@ -96,8 +96,8 @@ Parameters or variables of type *array* like:
 
 are represented by facts
 
-    parameter(array(2,int), "X").
-    variable(array(2,int), "Y").
+    parameter("X", array(2,int)).
+    variable("Y", array(2,int)).
 
 The array itself represented by using the predicate `in_array/3`:
 
