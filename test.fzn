@@ -1,0 +1,54 @@
+
+% special parameter declaration only allowed in predicate declarations
+
+predicate bla_01(1..3 : a);                                % OK - int
+predicate bla_02({1,2,3,4}:b);                             % OK - int
+predicate bla_03(1.0..2.3:c);                              % OK - float
+predicate bla_04(set of int:d);                            % OK - set
+predicate bla_05(set of 1..3:e);                           % OK - set
+predicate bla_06(set of {1,2,3}:f);                        % OK - set
+predicate bla_07(array [int] of 1..3:g);                   % OK - array of int
+predicate bla_08(array [int] of {1,2,3}:h);                % OK - array of int
+predicate bla_09(array [int] of 1.0..3.0:i);               % OK - array of float
+predicate bla_10(array [int] of set of 1..3:j);            % OK - array of set
+predicate bla_11(array [int] of set of {1,2,3}:k);         % OK - array of set
+
+% parameter declarations
+
+bool                              : a = true;             % OK - bool
+int                               : b = 3;                % OK - int
+float                             : c = 3.0;              % Ok - float
+set of int                        : d = {1};              % OK - set
+array [1..4] of bool              : e = [true,false];     % OK - array of bool
+array [1..4] of int               : f = [1,2,3,4];        % OK - array of int
+array [1..4] of float             : g = [1.0,2.2,4.4];    % OK - array of float
+array [1..3] of set of int        : h = [{1},{2},{3}];    % OK - array of set
+
+% variable declarations
+
+var bool                          : a = X;                % OK - bool
+var int                           : b = X;                % OK - int
+var 1..3                          : c = X;                % OK - int
+var {1,2,3,4}                     : d =X;                 % OK - int
+var float                         : e = X;                % OK - float
+var 1.0..2.3                      : f =X;                 % OK - float
+var set of int                    : g = {1,2,X};                 % FAIL - only allowed in predicate decaration 
+var set of 1..3                   : h = {1,2,X};          % OK - set
+var set of {1,2,3}                : i = {1,2,X};          % OK - set
+array [1..4] of var bool          : j = [true,false,X];   % OK - array of bool
+array [1..4] of var int           : k = [1,2,3,X];        % OK - array of int
+array [1..4] of var 1..3          : l = [1,2,3,X];        % OK - array of int
+array [1..4] of var {1,2,3}       : m = [1,2,3,X];        % OK - array of int
+array [1..4] of var float         : n = [1.0,2.2,3.4,X];  % OK - array of float
+array [1..4] of var 1.0..3.0      : o = [1.0,2.0,3.0,X];  % OK - array of float
+array [1..4] of var set of int    : p = [{1},{2},{Y},X];         % FAIL - such variable declaration may only appear in predicate declarations
+array [1..4] of var set of 1..3   : q = [{1},{2},{Y},X];  % OK - array of set
+array [1..4] of var set of {1,2,3}: r = [{1},{2},{Y},X];  % OK - array of set
+
+% constraints
+
+constraint bla({1,2,3},[X,5,6],{X,2.0,3.0},[X,5.0,6.0],[X,{1,X,3},{2,3}],[X,{4.0,5.0,6.1},{7.2,X}]);
+
+% solve statement
+
+solve satisfy;
