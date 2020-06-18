@@ -667,21 +667,38 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
             Expr::VarParIdentifier(id) => {
-                println!("in_constraint(c{},{},{}).", i, cpos, identifier(id))
+                println!("constraint_type_at(c{},{},var_par).", i, cpos);
+                println!("constraint_value_at(c{},{},{}).", i, cpos, identifier(id))
             }
-            Expr::Bool(e) => println!("in_constraint(c{},{},{}).", i, cpos, bool_expr(&e)),
-            Expr::Int(e) => println!("in_constraint(c{},{},{}).", i, cpos, int_expr(&e)),
-            Expr::Float(e) => println!("in_constraint(c{},{},{}).", i, cpos, float_expr(&e)),
+            Expr::Bool(e) => {
+                println!("constraint_type_at(c{},{},bool).", i, cpos);
+                println!("constraint_value_at(c{},{},{}).", i, cpos, bool_literal(*e));
+            }
+            Expr::Int(e) => {
+                println!("constraint_type_at(c{},{},int).", i, cpos);
+                println!("constraint_value_at(c{},{},{}).", i, cpos, int_literal(e));
+            }
+            Expr::Float(e) => {
+                println!("constraint_type_at(c{},{},float).", i, cpos);
+                println!(
+                    "constraint_value_at(c{},{},{}).",
+                    i,
+                    cpos,
+                    float_literal(*e)
+                );
+            }
             Expr::Set(e) => {
-                let set = set_expr(&e);
+                println!("constraint_type_at(c{},{},set).", i, cpos);
+                let set = set_literal_expr(e);
                 for element in set {
-                    println!("in_constraint(c{},{},{}).", i, cpos, element);
+                    println!("constraint_value_at(c{},{},{}).", i, cpos, element);
                 }
             }
-            Expr::ArrayOfBool(ArrayOfBoolExpr::Array(v)) => {
+            Expr::ArrayOfBool(v) => {
+                println!("constraint_type_at(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "in_constraint(c{},{},array_of_bool({},{})).",
+                        "constraint_value_at(c{},{},array({},{})).",
                         i,
                         cpos,
                         apos,
@@ -689,10 +706,11 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
                     );
                 }
             }
-            Expr::ArrayOfInt(ArrayOfIntExpr::Array(v)) => {
+            Expr::ArrayOfInt(v) => {
+                println!("constraint_type_at(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "in_constraint(c{},{},array_of_int({},{})).",
+                        "constraint_value_at(c{},{},array({},{})).",
                         i,
                         cpos,
                         apos,
@@ -700,10 +718,11 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
                     );
                 }
             }
-            Expr::ArrayOfFloat(ArrayOfFloatExpr::Array(v)) => {
+            Expr::ArrayOfFloat(v) => {
+                println!("constraint_type_at(c{},{},array).", i, cpos,);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "in_constraint(c{},{},array_of_float({},{})).",
+                        "constraint_value_at(c{},{},array({},{})).",
                         i,
                         cpos,
                         apos,
@@ -711,22 +730,17 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
                     );
                 }
             }
-            Expr::ArrayOfSet(ArrayOfSetExpr::Array(v)) => {
+            Expr::ArrayOfSet(v) => {
+                println!("constraint_type_at(c{},{},array_of_set).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     let set = set_expr(ae);
                     for element in set {
                         println!(
-                            "in_constraint(c{},{},array_of_set({},{})).",
+                            "constraint_value_at(c{},{},array({},{})).",
                             i, cpos, apos, element
                         );
                     }
                 }
-            }
-            Expr::ArrayOfBool(ArrayOfBoolExpr::VarParIdentifier(id))
-            | Expr::ArrayOfInt(ArrayOfIntExpr::VarParIdentifier(id))
-            | Expr::ArrayOfFloat(ArrayOfFloatExpr::VarParIdentifier(id))
-            | Expr::ArrayOfSet(ArrayOfSetExpr::VarParIdentifier(id)) => {
-                println!("in_constraint(c{},{},{}).", i, cpos, identifier(id));
             }
         }
     }
