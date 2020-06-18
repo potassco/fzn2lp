@@ -230,41 +230,23 @@ fn print_par_decl_item(item: &ParDeclItem) {
 }
 fn print_var_decl_item(item: &VarDeclItem) {
     match item {
-        VarDeclItem::Bool {
-            id,
-            expr: None,
-            annos,
-        } => {
+        VarDeclItem::Bool { id, expr, annos } => {
             println!("variable_type({},bool).", identifier(id));
+            if let Some(expr) = expr {
+                println!("variable_value({},{}).", identifier(id), bool_expr(expr));
+            }
         }
-        VarDeclItem::Bool {
-            id,
-            expr: Some(e),
-            annos,
-        } => {
-            println!("variable_type({},bool).", identifier(id));
-            println!("variable_value({},{}).", identifier(id), bool_expr(e));
-        }
-        VarDeclItem::Int {
-            id,
-            expr: None,
-            annos,
-        } => {
+        VarDeclItem::Int { id, expr, annos } => {
             println!("variable_type({},int).", identifier(id));
-        }
-        VarDeclItem::Int {
-            id,
-            expr: Some(e),
-            annos,
-        } => {
-            println!("variable_type({},int).", identifier(id));
-            println!("variable_value({},{}).", identifier(id), int_expr(e));
+            if let Some(expr) = expr {
+                println!("variable_value({},{}).", identifier(id), int_expr(expr));
+            }
         }
         VarDeclItem::IntInRange {
             id,
             lb,
             ub,
-            expr: None,
+            expr,
             annos,
         } => {
             println!(
@@ -272,62 +254,34 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 identifier(id),
                 int_in_range(lb, ub)
             );
-        }
-        VarDeclItem::IntInRange {
-            id,
-            lb,
-            ub,
-            expr: Some(e),
-            annos,
-        } => {
-            println!(
-                "variable_type({},{}).",
-                identifier(id),
-                int_in_range(lb, ub)
-            );
-            println!("variable_value({},{}).", identifier(id), int_expr(e));
-        }
-        VarDeclItem::IntInSet {
-            id,
-            set,
-            expr: None,
-            annos,
-        } => {
-            for element in set {
-                println!("variable_type({},int_in_set({})).", identifier(id), element);
+            if let Some(expr) = expr {
+                println!("variable_value({},{}).", identifier(id), int_expr(expr));
             }
         }
         VarDeclItem::IntInSet {
             id,
             set,
-            expr: Some(expr),
+            expr,
             annos,
         } => {
             for element in set {
                 println!("variable_type({},int_in_set({})).", identifier(id), element,);
             }
-            println!("variable_value({},{}).", identifier(id), int_expr(expr));
+            if let Some(expr) = expr {
+                println!("variable_value({},{}).", identifier(id), int_expr(expr));
+            }
         }
-        VarDeclItem::Float {
-            id,
-            annos,
-            expr: None,
-        } => {
+        VarDeclItem::Float { id, expr, annos } => {
             println!("variable_type({},float).", identifier(id));
-        }
-        VarDeclItem::Float {
-            id,
-            expr: Some(e),
-            annos,
-        } => {
-            println!("variable_type({},float).", identifier(id));
-            println!("variable_value({},{}).", identifier(id), float_expr(e));
+            if let Some(expr) = expr {
+                println!("variable_value({},{}).", identifier(id), float_expr(expr));
+            }
         }
         VarDeclItem::BoundedFloat {
             id,
             lb,
             ub,
-            expr: None,
+            expr,
             annos,
         } => {
             println!(
@@ -335,44 +289,24 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 identifier(id),
                 bounded_float(*lb, *ub)
             );
+            if let Some(expr) = expr {
+                println!("variable_value({},{}).", identifier(id), float_expr(expr));
+            }
         }
-        VarDeclItem::BoundedFloat {
-            id,
-            lb,
-            ub,
-            expr: Some(e),
-            annos,
-        } => {
-            println!(
-                "variable_type({},{}).",
-                identifier(id),
-                bounded_float(*lb, *ub)
-            );
-            println!("variable_value({},{}).", identifier(id), float_expr(e));
-        }
-        VarDeclItem::SetOfInt {
-            id,
-            expr: None,
-            annos,
-        } => {
+        VarDeclItem::SetOfInt { id, annos, expr } => {
             println!("variable_type({},set_of_int).", identifier(id));
-        }
-        VarDeclItem::SetOfInt {
-            id,
-            annos,
-            expr: Some(e),
-        } => {
-            println!("variable_type({},set_of_int).", identifier(id));
-            let set = set_expr(e);
-            for element in set {
-                println!("variable_value({},set_of_int,{}).", identifier(id), element);
+            if let Some(expr) = expr {
+                let set = set_expr(expr);
+                for element in set {
+                    println!("variable_value({},set_of_int,{}).", identifier(id), element);
+                }
             }
         }
         VarDeclItem::SubSetOfIntRange {
             id,
             lb,
             ub,
-            expr: None,
+            expr,
             annos,
         } => {
             println!(
@@ -380,28 +314,17 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 identifier(id),
                 subset_of_int_range(lb, ub),
             );
-        }
-        VarDeclItem::SubSetOfIntRange {
-            id,
-            lb,
-            ub,
-            expr: Some(e),
-            annos,
-        } => {
-            println!(
-                "variable_type({},{}).",
-                identifier(id),
-                subset_of_int_range(lb, ub),
-            );
-            let set = set_expr(e);
-            for element in set {
-                println!("variable_value({},{}).", identifier(id), element);
+            if let Some(expr) = expr {
+                let set = set_expr(expr);
+                for element in set {
+                    println!("variable_value({},{}).", identifier(id), element);
+                }
             }
         }
         VarDeclItem::SubSetOfIntSet {
             id,
             set,
-            expr: None,
+            expr,
             annos,
         } => {
             for element in set {
@@ -411,23 +334,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     element,
                 );
             }
-        }
-        VarDeclItem::SubSetOfIntSet {
-            id,
-            set,
-            expr: Some(e),
-            annos,
-        } => {
-            for element in set {
-                println!(
-                    "variable_type({},subset_of_int_set({})).",
-                    identifier(id),
-                    element,
-                );
-            }
-            let value_set = set_expr(e);
-            for element in value_set {
-                println!("variable_value({},{}).", identifier(id), element);
+            if let Some(expr) = expr {
+                let set = set_expr(expr);
+                for element in set {
+                    println!("variable_value({},{}).", identifier(id), element);
+                }
             }
         }
 
