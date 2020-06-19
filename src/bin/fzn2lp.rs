@@ -156,73 +156,94 @@ fn print_predicate(predicate: &PredicateItem) {
 fn print_par_decl_item(item: &ParDeclItem) {
     match item {
         ParDeclItem::Bool { id, bool } => {
+            println!("parameter_type({},bool).", identifier(id));
             println!(
-                "parameter({},bool,{}).",
+                "parameter_value({},value,{}).",
                 identifier(id),
                 bool_literal(*bool)
             );
         }
         ParDeclItem::Int { id, int } => {
-            println!("parameter({},int,{}).", identifier(id), int_literal(int))
+            println!("parameter_type({},int).", identifier(id));
+            println!(
+                "parameter_value({},value,{}).",
+                identifier(id),
+                int_literal(int)
+            );
         }
-        ParDeclItem::Float { id, float } => println!(
-            "parameter({},float,{}).",
-            identifier(id),
-            float_literal(*float)
-        ),
+        ParDeclItem::Float { id, float } => {
+            println!("parameter_type({},float).", identifier(id));
+            println!(
+                "parameter_value({},value,{}).",
+                identifier(id),
+                float_literal(*float)
+            );
+        }
         ParDeclItem::SetOfInt {
             id,
             set_literal: sl,
         } => {
-            let set = set_literal(sl);
+            println!("parameter_type({},set_of_int).", identifier(id));
+            let set = dec_set_literal(sl);
             for element in set {
-                println!("parameter({},set_of_int,{}).", identifier(id), element);
+                println!("parameter_value({},{}).", identifier(id), element);
             }
         }
-        ParDeclItem::ArrayOfBool { ix, id, expr } => {
-            for (pos, e) in expr.iter().enumerate() {
+        ParDeclItem::ArrayOfBool { ix, id, v } => {
+            println!(
+                "parameter_type({},{}).",
+                identifier(id),
+                array_type(&index(ix), "bool")
+            );
+            for (pos, e) in v.iter().enumerate() {
                 println!(
-                    "parameter({},{},array_of_bool({},{})).",
+                    "parameter_value({},array,({},{})).",
                     identifier(id),
-                    array_type(&index(ix), "bool"),
                     pos,
                     bool_literal(*e)
                 );
             }
         }
-        ParDeclItem::ArrayOfInt { ix, id, expr } => {
-            for (pos, e) in expr.iter().enumerate() {
+        ParDeclItem::ArrayOfInt { ix, id, v } => {
+            println!(
+                "parameter_type({},{}).",
+                identifier(id),
+                array_type(&index(ix), "int")
+            );
+            for (pos, e) in v.iter().enumerate() {
                 println!(
-                    "parameter({},{},array_of_int({},{})).",
+                    "parameter_value({},array,({},{})).",
                     identifier(id),
-                    array_type(&index(ix), "int"),
                     pos,
                     int_literal(e)
                 );
             }
         }
-        ParDeclItem::ArrayOfFloat { ix, id, expr } => {
-            for (pos, e) in expr.iter().enumerate() {
+        ParDeclItem::ArrayOfFloat { ix, id, v } => {
+            println!(
+                "parameter_type({},{}).",
+                identifier(id),
+                array_type(&index(ix), "float"),
+            );
+            for (pos, e) in v.iter().enumerate() {
                 println!(
-                    "parameter({},{},array_of_float({},{})).",
+                    "parameter_value({},array,({},{})).",
                     identifier(id),
-                    array_type(&index(ix), "float"),
                     pos,
                     float_literal(*e)
                 );
             }
         }
-        ParDeclItem::ArrayOfSet { ix, id, expr } => {
-            for (pos, e) in expr.iter().enumerate() {
-                let set = set_literal(e);
+        ParDeclItem::ArrayOfSet { ix, id, v } => {
+            println!(
+                "parameter_type({},{}).",
+                identifier(id),
+                array_type(&index(ix), "set")
+            );
+            for (pos, e) in v.iter().enumerate() {
+                let set = dec_set_literal(e);
                 for element in set {
-                    println!(
-                        "parameter({},{},array_of_set({},{})).",
-                        identifier(id),
-                        array_type(&index(ix), "set"),
-                        pos,
-                        element
-                    );
+                    println!("parameter({},array,({},{})).", identifier(id), pos, element);
                 }
             }
         }
@@ -233,13 +254,21 @@ fn print_var_decl_item(item: &VarDeclItem) {
         VarDeclItem::Bool { id, expr, annos } => {
             println!("variable_type({},bool).", identifier(id));
             if let Some(expr) = expr {
-                println!("variable_value({},{}).", identifier(id), bool_expr(expr));
+                println!(
+                    "variable_value({},value,{}).",
+                    identifier(id),
+                    bool_expr(expr)
+                );
             }
         }
         VarDeclItem::Int { id, expr, annos } => {
             println!("variable_type({},int).", identifier(id));
             if let Some(expr) = expr {
-                println!("variable_value({},{}).", identifier(id), int_expr(expr));
+                println!(
+                    "variable_value({},value,{}).",
+                    identifier(id),
+                    int_expr(expr)
+                );
             }
         }
         VarDeclItem::IntInRange {
@@ -255,7 +284,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 int_in_range(lb, ub)
             );
             if let Some(expr) = expr {
-                println!("variable_value({},{}).", identifier(id), int_expr(expr));
+                println!(
+                    "variable_value({},value,{}).",
+                    identifier(id),
+                    int_expr(expr)
+                );
             }
         }
         VarDeclItem::IntInSet {
@@ -268,13 +301,21 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 println!("variable_type({},int_in_set({})).", identifier(id), element,);
             }
             if let Some(expr) = expr {
-                println!("variable_value({},{}).", identifier(id), int_expr(expr));
+                println!(
+                    "variable_value({},value,{}).",
+                    identifier(id),
+                    int_expr(expr)
+                );
             }
         }
         VarDeclItem::Float { id, expr, annos } => {
             println!("variable_type({},float).", identifier(id));
             if let Some(expr) = expr {
-                println!("variable_value({},{}).", identifier(id), float_expr(expr));
+                println!(
+                    "variable_value({},value,{}).",
+                    identifier(id),
+                    float_expr(expr)
+                );
             }
         }
         VarDeclItem::BoundedFloat {
@@ -290,15 +331,19 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 bounded_float(*lb, *ub)
             );
             if let Some(expr) = expr {
-                println!("variable_value({},{}).", identifier(id), float_expr(expr));
+                println!(
+                    "variable_value({},value,{}).",
+                    identifier(id),
+                    float_expr(expr)
+                );
             }
         }
         VarDeclItem::SetOfInt { id, annos, expr } => {
             println!("variable_type({},set_of_int).", identifier(id));
             if let Some(expr) = expr {
-                let set = set_expr(expr);
+                let set = dec_set_expr(expr);
                 for element in set {
-                    println!("variable_value({},set_of_int,{}).", identifier(id), element);
+                    println!("variable_value({},{}).", identifier(id), element);
                 }
             }
         }
@@ -315,7 +360,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 subset_of_int_range(lb, ub),
             );
             if let Some(expr) = expr {
-                let set = set_expr(expr);
+                let set = dec_set_expr(expr);
                 for element in set {
                     println!("variable_value({},{}).", identifier(id), element);
                 }
@@ -335,7 +380,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 );
             }
             if let Some(expr) = expr {
-                let set = set_expr(expr);
+                let set = dec_set_expr(expr);
                 for element in set {
                     println!("variable_value({},{}).", identifier(id), element);
                 }
@@ -357,15 +402,19 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 Some(ArrayOfBoolExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
                         println!(
-                            "variable_value({},array_of_bool({},{})).",
+                            "variable_value({},array,({},{})).",
                             identifier(id),
                             pos,
                             bool_expr(e)
                         );
                     }
                 }
-                Some(ArrayOfBoolExpr::VarParIdentifier(id)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id));
+                Some(ArrayOfBoolExpr::VarParIdentifier(id2)) => {
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -385,7 +434,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 Some(ArrayOfIntExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
                         println!(
-                            "variable_value({},array_of_int({},{})).",
+                            "variable_value({},array,({},{})).",
                             identifier(id),
                             pos,
                             int_expr(e)
@@ -393,7 +442,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     }
                 }
                 Some(ArrayOfIntExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -415,7 +468,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 Some(ArrayOfIntExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
                         println!(
-                            "variable_value({},array_of_int({},{})).",
+                            "variable_value({},array,({},{})).",
                             identifier(id),
                             pos,
                             int_expr(e)
@@ -423,7 +476,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     }
                 }
                 Some(ArrayOfIntExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -446,7 +503,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 Some(ArrayOfIntExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
                         println!(
-                            "variable_value({},array_of_int({},{})).",
+                            "variable_value({},array,({},{})).",
                             identifier(id),
                             pos,
                             int_expr(e)
@@ -454,7 +511,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     }
                 }
                 Some(ArrayOfIntExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -474,7 +535,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 Some(ArrayOfFloatExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
                         println!(
-                            "variable_value({},array_of_float({},{})).",
+                            "variable_value({},array,({},{})).",
                             identifier(id),
                             pos,
                             float_expr(e)
@@ -482,7 +543,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     }
                 }
                 Some(ArrayOfFloatExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -504,7 +569,7 @@ fn print_var_decl_item(item: &VarDeclItem) {
                 Some(ArrayOfFloatExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
                         println!(
-                            "variable_value({},array_of_float({},{})).",
+                            "variable_value({},array,({},{})).",
                             identifier(id),
                             pos,
                             float_expr(e)
@@ -512,7 +577,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     }
                 }
                 Some(ArrayOfFloatExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -531,10 +600,10 @@ fn print_var_decl_item(item: &VarDeclItem) {
             match array_expr {
                 Some(ArrayOfSetExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
-                        let set = set_expr(e);
+                        let set = dec_set_expr(e);
                         for element in set {
                             println!(
-                                "variable_value({},array_of_set({},{})).",
+                                "variable_value({},array,({},{})).",
                                 identifier(id),
                                 pos,
                                 element
@@ -543,7 +612,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     }
                 }
                 Some(ArrayOfSetExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -564,10 +637,10 @@ fn print_var_decl_item(item: &VarDeclItem) {
             match array_expr {
                 Some(ArrayOfSetExpr::Array(v)) => {
                     for (pos, e) in v.iter().enumerate() {
-                        let set = set_expr(e);
+                        let set = dec_set_expr(e);
                         for element in set {
                             println!(
-                                "variable_value({}, array_of_set({},{})).",
+                                "variable_value({}, array,({},{})).",
                                 identifier(id),
                                 pos,
                                 element
@@ -576,7 +649,11 @@ fn print_var_decl_item(item: &VarDeclItem) {
                     }
                 }
                 Some(ArrayOfSetExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -597,19 +674,18 @@ fn print_var_decl_item(item: &VarDeclItem) {
             }
             match array_expr {
                 Some(ArrayOfSetExpr::Array(v)) => {
-                    for se in v {
-                        for (pos, e) in set_expr(se).iter().enumerate() {
-                            println!(
-                                "variable_value({},array_of_set({},set_of_int({}))).",
-                                identifier(id),
-                                pos,
-                                e
-                            );
+                    for (pos, se) in v.iter().enumerate() {
+                        for e in dec_set_expr(se) {
+                            println!("variable_value({},array,({},{})).", identifier(id), pos, e);
                         }
                     }
                 }
                 Some(ArrayOfSetExpr::VarParIdentifier(id2)) => {
-                    println!("variable_value({},{}).", identifier(id), identifier(id2));
+                    println!(
+                        "variable_value({},value,{}).",
+                        identifier(id),
+                        identifier(id2)
+                    );
                 }
                 None => {}
             }
@@ -668,20 +744,35 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
         match ce {
             Expr::VarParIdentifier(id) => {
                 println!("constraint_type_at(c{},{},var_par).", i, cpos);
-                println!("constraint_value_at(c{},{},{}).", i, cpos, identifier(id))
+                println!(
+                    "constraint_value_at(c{},{},value,{}).",
+                    i,
+                    cpos,
+                    identifier(id)
+                )
             }
             Expr::Bool(e) => {
                 println!("constraint_type_at(c{},{},bool).", i, cpos);
-                println!("constraint_value_at(c{},{},{}).", i, cpos, bool_literal(*e));
+                println!(
+                    "constraint_value_at(c{},{},value,{}).",
+                    i,
+                    cpos,
+                    bool_literal(*e)
+                );
             }
             Expr::Int(e) => {
                 println!("constraint_type_at(c{},{},int).", i, cpos);
-                println!("constraint_value_at(c{},{},{}).", i, cpos, int_literal(e));
+                println!(
+                    "constraint_value_at(c{},{},value,{}).",
+                    i,
+                    cpos,
+                    int_literal(e)
+                );
             }
             Expr::Float(e) => {
                 println!("constraint_type_at(c{},{},float).", i, cpos);
                 println!(
-                    "constraint_value_at(c{},{},{}).",
+                    "constraint_value_at(c{},{},value,{}).",
                     i,
                     cpos,
                     float_literal(*e)
@@ -689,7 +780,7 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
             }
             Expr::Set(e) => {
                 println!("constraint_type_at(c{},{},set).", i, cpos);
-                let set = set_literal_expr(e);
+                let set = dec_set_literal_expr(e);
                 for element in set {
                     println!("constraint_value_at(c{},{},{}).", i, cpos, element);
                 }
@@ -698,7 +789,7 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
                 println!("constraint_type_at(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "constraint_value_at(c{},{},array({},{})).",
+                        "constraint_value_at(c{},{},array,({},{})).",
                         i,
                         cpos,
                         apos,
@@ -710,7 +801,7 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
                 println!("constraint_type_at(c{},{},array).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "constraint_value_at(c{},{},array({},{})).",
+                        "constraint_value_at(c{},{},array,({},{})).",
                         i,
                         cpos,
                         apos,
@@ -722,7 +813,7 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
                 println!("constraint_type_at(c{},{},array).", i, cpos,);
                 for (apos, ae) in v.iter().enumerate() {
                     println!(
-                        "constraint_value_at(c{},{},array({},{})).",
+                        "constraint_value_at(c{},{},array,({},{})).",
                         i,
                         cpos,
                         apos,
@@ -733,10 +824,10 @@ fn print_constraint(c: &ConstraintItem, i: usize) {
             Expr::ArrayOfSet(v) => {
                 println!("constraint_type_at(c{},{},array_of_set).", i, cpos);
                 for (apos, ae) in v.iter().enumerate() {
-                    let set = set_expr(ae);
+                    let set = dec_set_expr(ae);
                     for element in set {
                         println!(
-                            "constraint_value_at(c{},{},array({},{})).",
+                            "constraint_value_at(c{},{},array,({},{})).",
                             i, cpos, apos, element
                         );
                     }
@@ -752,7 +843,7 @@ fn print_solve_item(i: &SolveItem) {
         Goal::OptimizeInt(ot, e) => println!("solve({},{}).", opt_type(ot), int_expr(&e)),
         Goal::OptimizeFloat(ot, e) => println!("solve({},{}).", opt_type(ot), float_expr(&e)),
         Goal::OptimizeSet(ot, e) => {
-            let set = set_expr(e);
+            let set = dec_set_expr(e);
             for element in set {
                 println!("solve({},{}).", opt_type(ot), element);
             }
@@ -832,53 +923,53 @@ fn float_expr(e: &FloatExpr) -> String {
 fn float_literal(f: f64) -> String {
     format!("\"{}\"", f)
 }
-fn set_expr(e: &SetExpr) -> Vec<String> {
+fn dec_set_expr(e: &SetExpr) -> Vec<String> {
     match e {
-        SetExpr::Set(sl) => set_literal_expr(sl),
-        SetExpr::VarParIdentifier(id) => vec![identifier(id)],
+        SetExpr::Set(sl) => dec_set_literal_expr(sl),
+        SetExpr::VarParIdentifier(id) => vec![format!("value,{}", identifier(id))],
     }
 }
-fn set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
+fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
     let mut ret = Vec::new();
     match l {
         SetLiteralExpr::BoundedFloat(f1, f2) => ret.push(format!(
-            "set_float_range({},{})",
+            "float_bound,({},{})",
             float_expr(f1),
             float_expr(f2)
         )),
         SetLiteralExpr::IntInRange(i1, i2) => {
-            ret.push(format!("set_int_range({},{})", int_expr(i1), int_expr(i2)))
+            ret.push(format!("int_range,({},{})", int_expr(i1), int_expr(i2)))
         }
         SetLiteralExpr::SetFloats(v) => {
             for f in v {
-                ret.push(format!("set_of_float({})", float_expr(f)));
+                ret.push(format!("value,{}", float_expr(f)));
             }
         }
         SetLiteralExpr::SetInts(v) => {
             for i in v {
-                ret.push(format!("set_of_int({})", int_expr(i)));
+                ret.push(format!("value,{}", int_expr(i)));
             }
         }
     }
     ret
 }
-fn set_literal(l: &SetLiteral) -> Vec<String> {
+fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
     let mut ret = Vec::new();
     match l {
-        SetLiteral::FloatRange(f1, f2) => ret.push(format!(
-            "set_float_range({},{})",
+        SetLiteral::BoundedFloat(f1, f2) => ret.push(format!(
+            "float_bound,({},{})",
             float_literal(*f1),
             float_literal(*f2)
         )),
-        SetLiteral::IntRange(i1, i2) => ret.push(format!("set_int_range({},{})", i1, i2)),
+        SetLiteral::IntRange(i1, i2) => ret.push(format!("int_range,({},{})", i1, i2)),
         SetLiteral::SetFloats(v) => {
             for f in v {
-                ret.push(format!("set_of_float({})", float_literal(*f)));
+                ret.push(format!("value,{}", float_literal(*f)));
             }
         }
         SetLiteral::SetInts(v) => {
             for f in v {
-                ret.push(format!("set_of_int({})", f));
+                ret.push(format!("value,{}", f));
             }
         }
     }
