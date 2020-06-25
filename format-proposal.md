@@ -24,28 +24,64 @@ variable_value("h",array,(2,set,emptyset)).
 ```
 
 Variable **assignments** of any kind.
-I'm a bit confused about variables, as your variable example contains only fixed values and does not differ from a parameter. If they can contain other variables, 17 could also be replaced with "X" to reference another variable instead of an integer.
 
 ```asp
-variable_value("a",value,1).                   % single integer
-variable_value("b",value,"1.0").               % single float
-variable_value("c",value,true).                % single bool
-variable_value("c2",var,"X").                  % single variable     c2=X
-variable_value("d",array,(0,value,42)).        % array of int
+% FZN
+var int : a = 1;
+% ASP
+variable_type("a",int).
+variable_value("a",value,1).
+
+% FZN
+var float : b = 1.0;
+% ASP
+variable_type("b",float).
+variable_value("b",value,"1").
+
+% FZN
+var bool : c = true;
+% ASP
+variable_type("c",bool).
+variable_value("c",value,true).
+
+% FZN
+array [1..2] of var int : d = [42,23];
+% ASP
+variable_type("d",array(2,int)).
+variable_value("d",array,(0,value,42)).
 variable_value("d",array,(1,value,23)).
-variable_value("d",array,(2,var,"X")).
-variable_value("e",array,(0,value,"42.0")).    % array of float
-variable_value("e",array,(1,value,"23.0")).
-variable_value("f",set,(value,17))).           % set of var int
-variable_value("f",set,(var,"X"))). 
-variable_value("f",set,(range,(23,42)))).
-variable_value("g",set,(value,"23.0"))).       % set of float
-variable_value("g",set,(value,"42.0"))).
-variable_value("h",array,(0,set,(value,42))).  % array of set of var int
+
+% FZN
+array [1..2] of var float : e = [42.1,23.1];
+% ASP
+variable_type("e",array(2,float)).
+variable_value("e",array,(0,value,"42.1")).
+variable_value("e",array,(1,value,"23.1")).
+
+% FZN
+var set of 17..42: f = {17,23};
+% ASP
+variable_type("f",subset_of_int_range(17,42)).
+variable_value("f",set,(value,17)).
+variable_value("f",set,(value,23)).
+
+% TODO: Check if/how set of floats are allowed
+% FZN
+% var set of float: g = {23.1,42.1};
+% ASP
+% variable_value("g",set,(value,"23.1")).
+% variable_value("g",set,(value,"42.1")).
+
+% FZN
+array [1..2] of var set of 17..42: h = [{42,17},23..X];  % TODO: check empty set
+% ASP
+variable_type("h",array(2,subset_of_int_range(17,42))).
+variable_value("h",array,(0,set,(value,42))).
 variable_value("h",array,(0,set,(value,17))).
-variable_value("h",array,(0,set,(var,"X"))).
-variable_value("h",array,(1,set,(range,(1,5)))).
-variable_value("h",array,(1,set,(value,42))).
+variable_value("h",array,(1,range,(value,23,var,X))).
+
+% TODO: check empty set
+% ASP
 variable_value("h",array,(2,set,emptyset)).
 ```
 
