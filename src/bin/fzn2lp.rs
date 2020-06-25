@@ -66,15 +66,87 @@ pub enum FlatZincError {
     ParseError { msg: String },
 }
 #[test]
-fn test_var_bool() {
+fn test_varibales() {
     let mut counter = 0;
     let mut level = 0;
     let mut res = Vec::new();
-    write_fz_stmt(&mut res, "var bool : a = true;", &mut counter, &mut level).unwrap();
+    write_fz_stmt(&mut res, "var int : a = 1;", &mut counter, &mut level).unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"a\",bool).\nvariable_value(\"a\",value,true).\n".to_string()
+        "variable_type(\"a\",int).\nvariable_value(\"a\",value,1).\n".to_string()
     );
+    let mut res = Vec::new();
+    write_fz_stmt(&mut res, "var float : b = 1.0;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"b\",float).\nvariable_value(\"b\",value,\"1\").\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(&mut res, "var bool : c = true;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"c\",bool).\nvariable_value(\"c\",value,true).\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "array [1..2] of var int : d = [42,23];",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"d\",array(2,int)).\nvariable_value(\"d\",array,(0,value,42)).\nvariable_value(\"d\",array,(1,value,23)).\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "array [1..2] of var float : e = [42.1,23.1];",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"e\",array(2,float)).\nvariable_value(\"e\",array,(0,value,\"42.1\")).\nvariable_value(\"e\",array,(1,value,\"23.1\")).\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "var set of 17..42: f = {17,23};",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"f\",subset_of_int_range(17,42)).\nvariable_value(\"f\",set,(value,17)).\nvariable_value(\"f\",set,(value,23)).\n"
+            .to_string()
+    );
+    // let mut res = Vec::new(); // TODO: Check if set of floats are allowed
+    // write_fz_stmt(
+    //     &mut res,
+    //     "var set of float: g = {23.1,42.1};",
+    //     &mut counter,
+    //     &mut level,
+    // )
+    // .unwrap();
+    // assert_eq!(
+    //     std::str::from_utf8(&res).unwrap(),
+    //     "variable_value(\"g\",set,(value,\"23.1\")).\nvariable_value(\"g\",set,(value,\"42.1\")).\n".to_string()
+    // );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "array [1..2] of var set of 17..42: h = [{42,17},23..X];", //TODO: check empty set
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"h\",array(2,subset_of_int_range(17,42))).\nvariable_value(\"h\",array,(0,set,(value,42))).\nvariable_value(\"h\",array,(0,set,(value,17))).\nvariable_value(\"h\",array,(1,range,(23,30))).\n".to_string());
 }
 fn write_fz_stmt(
     mut out: impl Write,
@@ -293,7 +365,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             if let Some(expr) = expr {
                 writeln!(
                     buf,
-                    "variable_value({},value,{}).",
+                    "variable_value({},{}).",
                     identifier(id),
                     bool_expr(expr)
                 )?;
@@ -304,7 +376,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             if let Some(expr) = expr {
                 writeln!(
                     buf,
-                    "variable_value({},value,{}).",
+                    "variable_value({},{}).",
                     identifier(id),
                     int_expr(expr)
                 )?;
@@ -326,7 +398,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             if let Some(expr) = expr {
                 writeln!(
                     buf,
-                    "variable_value({},value,{}).",
+                    "variable_value({},{}).",
                     identifier(id),
                     int_expr(expr)
                 )?;
@@ -349,7 +421,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             if let Some(expr) = expr {
                 writeln!(
                     buf,
-                    "variable_value({},value,{}).",
+                    "variable_value({},{}).",
                     identifier(id),
                     int_expr(expr)
                 )?;
@@ -360,7 +432,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             if let Some(expr) = expr {
                 writeln!(
                     buf,
-                    "variable_value({},value,{}).",
+                    "variable_value({},{}).",
                     identifier(id),
                     float_expr(expr)
                 )?;
@@ -382,7 +454,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             if let Some(expr) = expr {
                 writeln!(
                     buf,
-                    "variable_value({},value,{}).",
+                    "variable_value({},{}).",
                     identifier(id),
                     float_expr(expr)
                 )?;
@@ -714,7 +786,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                         for element in set {
                             writeln!(
                                 buf,
-                                "variable_value({}, array,({},{})).",
+                                "variable_value({},array,({},{})).",
                                 identifier(id),
                                 pos,
                                 element
@@ -996,8 +1068,8 @@ fn pred_index(is: &PredIndexSet) -> String {
 }
 fn bool_expr(e: &BoolExpr) -> String {
     match e {
-        BoolExpr::Bool(b) => bool_literal(*b),
-        BoolExpr::VarParIdentifier(id) => identifier(id),
+        BoolExpr::Bool(b) => format!("value,{}", bool_literal(*b)),
+        BoolExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
     }
 }
 fn bool_literal(b: bool) -> String {
@@ -1009,8 +1081,8 @@ fn bool_literal(b: bool) -> String {
 }
 fn int_expr(e: &IntExpr) -> String {
     match e {
-        IntExpr::Int(i) => int_literal(i),
-        IntExpr::VarParIdentifier(id) => identifier(id),
+        IntExpr::Int(i) => format!("value,{}", int_literal(i)),
+        IntExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
     }
 }
 fn int_literal(i: &i128) -> String {
@@ -1018,8 +1090,8 @@ fn int_literal(i: &i128) -> String {
 }
 fn float_expr(e: &FloatExpr) -> String {
     match e {
-        FloatExpr::Float(f) => float_literal(*f),
-        FloatExpr::VarParIdentifier(id) => identifier(id),
+        FloatExpr::Float(f) => format!("value,{}", float_literal(*f)),
+        FloatExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
     }
 }
 fn float_literal(f: f64) -> String {
@@ -1028,7 +1100,7 @@ fn float_literal(f: f64) -> String {
 fn dec_set_expr(e: &SetExpr) -> Vec<String> {
     match e {
         SetExpr::Set(sl) => dec_set_literal_expr(sl),
-        SetExpr::VarParIdentifier(id) => vec![format!("value,{}", identifier(id))],
+        SetExpr::VarParIdentifier(id) => vec![format!("var,{}", identifier(id))],
     }
 }
 fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
@@ -1040,16 +1112,16 @@ fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
             float_expr(f2)
         )),
         SetLiteralExpr::IntInRange(i1, i2) => {
-            ret.push(format!("int_range,({},{})", int_expr(i1), int_expr(i2)))
+            ret.push(format!("range,({},{})", int_expr(i1), int_expr(i2)))
         }
         SetLiteralExpr::SetFloats(v) => {
             for f in v {
-                ret.push(format!("value,{}", float_expr(f)));
+                ret.push(format!("set,({})", float_expr(f)));
             }
         }
         SetLiteralExpr::SetInts(v) => {
             for i in v {
-                ret.push(format!("value,{}", int_expr(i)));
+                ret.push(format!("set,({})", int_expr(i)));
             }
         }
     }
@@ -1063,15 +1135,15 @@ fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
             float_literal(*f1),
             float_literal(*f2)
         )),
-        SetLiteral::IntRange(i1, i2) => ret.push(format!("int_range,({},{})", i1, i2)),
+        SetLiteral::IntRange(i1, i2) => ret.push(format!("range,({},{})", i1, i2)),
         SetLiteral::SetFloats(v) => {
             for f in v {
-                ret.push(format!("value,{}", float_literal(*f)));
+                ret.push(format!("set,({})", float_literal(*f)));
             }
         }
         SetLiteral::SetInts(v) => {
             for f in v {
-                ret.push(format!("value,{}", f));
+                ret.push(format!("set,({})", f));
             }
         }
     }
