@@ -66,7 +66,7 @@ pub enum FlatZincError {
     ParseError { msg: String },
 }
 #[test]
-fn test_varibales() {
+fn test_variables() {
     let mut counter = 0;
     let mut level = 0;
     let mut res = Vec::new();
@@ -146,7 +146,7 @@ fn test_varibales() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"h\",array(2,subset_of_int_range(17,42))).\nvariable_value(\"h\",array,(0,set,(value,42))).\nvariable_value(\"h\",array,(0,set,(value,17))).\nvariable_value(\"h\",array,(1,range,(23,30))).\n".to_string());
+        "variable_type(\"h\",array(2,subset_of_int_range(17,42))).\nvariable_value(\"h\",array,(0,set,(value,42))).\nvariable_value(\"h\",array,(0,set,(value,17))).\nvariable_value(\"h\",array,(1,range,(value,23,var,\"X\"))).\n".to_string());
 }
 fn write_fz_stmt(
     mut out: impl Write,
