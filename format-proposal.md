@@ -142,21 +142,23 @@ variable_type("k", array(20,set_of_int)).                       % 20 elements of
 Constraints:
 
 ```asp
-constraint(c1,"constraint_name").
-% constraint_value(ID, parameter position, value)
-constraint_value(c1,0,value,42).                                % parameter 0 is integer 42
-constraint_value(c1,1,value,"42.0").                            % parameter 1 is float 42.0
-constraint_value(c1,2,value, true).                             % parameter 2 is bool true
-constraint_value(c1,4,var,"a").                                 % parameter 4 is variable "a", what ever this is
-constraint_value(c1,5,array,(0,value,42)).                      % parameter 5 is an array of integers and integer variables
-constraint_value(c1,5,array,(1,value,17)).
-constraint_value(c1,5,array,(2,var,"X")).
-constraint_value(c1,6,set,(var,"X")).                           % parameter 6 is a set of var int
-constraint_value(c1,6,set,(value,34)).
-constraint_value(c1,6,set,(range,(37,48))).
-constraint_value(c1,7,array,(0,set,(value,42))).                % parameter 7 is an array of sets of integers
-constraint_value(c1,7,array,(0,set,(value,17))).
-constraint_value(c1,7,array,(1,set,(range,(17,34)))).
-constraint_value(c1,7,array,(2,set,(var,"X"))).
-constraint_value(c1,7,array,(2,set,(var,"Y"))).
+% FZN
+constraint bla(42,42.1,true,a,[42,17,X],{X,34},37..48,[{42,17},17..34,{X,Y}]);
+% ASP
+constraint(c1,"bla").
+constraint_value_at(c1,0,value,42).
+constraint_value_at(c1,1,value,"42.1").
+constraint_value_at(c1,2,value,true).
+constraint_value_at(c1,3,var,"a").
+constraint_value_at(c1,4,array,(0,value,42)).
+constraint_value_at(c1,4,array,(1,value,17)).
+constraint_value_at(c1,4,array,(2,var,"X")).
+constraint_value_at(c1,5,set,(var,"X")).
+constraint_value_at(c1,5,set,(value,34)).
+constraint_value_at(c1,6,range,(value,37,value,48)).
+constraint_value_at(c1,7,array,(0,set,(value,42))).
+constraint_value_at(c1,7,array,(0,set,(value,17))).
+constraint_value_at(c1,7,array,(1,range,(value,17,value,34))).
+constraint_value_at(c1,7,array,(2,set,(var,"X"))).
+constraint_value_at(c1,7,array,(2,set,(var,"Y"))).
 ```
