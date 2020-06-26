@@ -5,22 +5,22 @@
 Parameters of any kind:
 
 ```asp
-variable_value("a",value,1).                   % single integer
-variable_value("b",value,"1.0").               % single float
-variable_value("c",value,true).                % single bool
-variable_value("d",array,(0,value,42)).        % array of int
-variable_value("d",array,(1,value,23)).
-variable_value("e",array,(0,value,"42.0")).    % array of float
-variable_value("e",array,(1,value,"23.0")).
-variable_value("f",set,(value,17)).            % set of int
-variable_value("f",set,(range,(23,42))).       % !! INVALID FZN 
-variable_value("g",set,(value,"23.0"))).       % set of float
-variable_value("g",set,(value,"42.0"))).
-variable_value("h",array,(0,set,(value,42))).  % array of set of int
-variable_value("h",array,(0,set,(value,17))).
-variable_value("h",array,(1,set,(range,(1,5)))).
-variable_value("h",array,(1,set,(value,42))).
-variable_value("h",array,(2,set,emptyset)).
+parameter_value("a",value,1).                   % single integer
+parameter_value("b",value,"1.0").               % single float
+parameter_value("c",value,true).                % single bool
+parameter_value("d",array,(0,value,42)).        % array of int
+parameter_value("d",array,(1,value,23)).
+parameter_value("e",array,(0,value,"42.0")).    % array of float
+parameter_value("e",array,(1,value,"23.0")).
+parameter_value("f",set,(value,17)).            % set of int
+parameter_value("f",set,(range,(23,42))).       % !! INVALID FZN 
+parameter_value("g",set,(value,"23.0"))).       % set of float
+parameter_value("g",set,(value,"42.0"))).
+parameter_value("h",array,(0,set,(value,42))).  % array of set of int
+parameter_value("h",array,(0,set,(value,17))).
+parameter_value("h",array,(1,set,(range,(1,5)))).
+parameter_value("h",array,(1,set,(value,42))).
+parameter_value("h",array,(2,set,emptyset)).
 ```
 
 Variable **assignments** of any kind.
@@ -61,7 +61,7 @@ variable_value("e",array,(1,value,"23.1")).
 % FZN
 var set of 17..42: f = {17,23};
 % ASP
-variable_type("f",subset_of_int_range(17,42)).
+variable_type("f",set_of_int,(range,17,42)).
 variable_value("f",set,(value,17)).
 variable_value("f",set,(value,23)).
 
@@ -75,7 +75,7 @@ variable_value("f",set,(value,23)).
 % FZN
 array [1..2] of var set of 17..42: h = [{42,17},23..X];  % TODO: check empty set
 % ASP
-variable_type("h",array(2,subset_of_int_range(17,42))).
+variable_type("h",array(2,set_of_int,(range,17,42))).
 variable_value("h",array,(0,set,(value,42))).
 variable_value("h",array,(0,set,(value,17))).
 variable_value("h",array,(1,range,(value,23,var,X))).
@@ -91,19 +91,17 @@ Variables:
 variable_type("a", int).
 variable_type("b", float).
 variable_type("c", bool).
-variable_type("d", int, range,(23,42)).
-variable_type("e", int, set,(value,23)).
-variable_type("e", int, set,(value,42)).
-variable_type("e", int, set,(range,(100,200))).
-variable_type("f", float, range,(23,42)).
-variable_type("g", array(20,int, range,(17,23))).               % 20 elements of int in the range 17..23
+variable_type("d", int, (range,23,42)).
+variable_type("e", int, (set,23)).
+variable_type("e", int, (set,42)).
+variable_type("f", float, (range,23,42)).
+variable_type("g", array(20,int, (range,17,23))).               % 20 elements of int in the range 17..23
 variable_type("h", array(20,int)).                              % 20 elements of int
-variable_type("i", array(20,int, set,(value,23))).              % 20 elements of int
-variable_type("i", array(20,int, set,(value,25))).
-variable_type("i", array(20,int, set,(range,(42,56)))).
-variable_type("j", array(20,set_of_int, set,(value,23))).       % 20 elements of set of ints
-variable_type("j", array(20,set_of_int, set,(value,2))).
-variable_type("j", array(20,set_of_int, set,(range,(43,56)))).
+variable_type("i", array(20,int, (set,23))).                    % 20 elements of int from the set {23,25}
+variable_type("i", array(20,int, (set,25))).
+variable_type("j", array(20,set_of_int, (set,23))).             % 20 elements of set of ints from {23,2}
+variable_type("j", array(20,set_of_int, (set,2))).
+variable_type("j2", array(20,set_of_int, (range,43,56)))).      % 20 elements of set of ints from 43..56
 variable_type("k", array(20,set_of_int)).                       % 20 elements of set of ints
 ```
 
