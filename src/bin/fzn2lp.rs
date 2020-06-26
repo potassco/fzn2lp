@@ -189,7 +189,6 @@ fn test_variables() {
             .to_string()
     );
 }
-
 #[test]
 fn test_parameters() {
     let mut counter = 0;
@@ -278,6 +277,39 @@ fn test_parameters() {
          parameter_value(\"h\",array,(0,set,(value,17))).\n\
          parameter_value(\"h\",array,(1,range,(value,1,value,5))).\n\
          parameter_value(\"h\",array,(2,empty_set)).\n"
+            .to_string()
+    );
+}
+#[test]
+fn test_constraint() {
+    let mut counter = 0;
+    let mut level = 0;
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "constraint bla(42,42.1,true,a,[42,17,X],{X,34},37..48,[{42,17},17..34,{X,Y}]);",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "constraint(c1,\"bla\").\n\
+         constraint_value_at(c1,0,value,42).\n\
+         constraint_value_at(c1,1,value,\"42.1\").\n\
+         constraint_value_at(c1,2,value,true).\n\
+         constraint_value_at(c1,3,var,\"a\").\n\
+         constraint_value_at(c1,4,array,(0,value,42)).\n\
+         constraint_value_at(c1,4,array,(1,value,17)).\n\
+         constraint_value_at(c1,4,array,(2,var,\"X\")).\n\
+         constraint_value_at(c1,5,set,(var,\"X\")).\n\
+         constraint_value_at(c1,5,set,(value,34)).\n\
+         constraint_value_at(c1,6,range,(value,37,value,48)).\n\
+         constraint_value_at(c1,7,array,(0,set,(value,42))).\n\
+         constraint_value_at(c1,7,array,(0,set,(value,17))).\n\
+         constraint_value_at(c1,7,array,(1,range,(value,17,value,34))).\n\
+         constraint_value_at(c1,7,array,(2,set,(var,\"X\"))).\n\
+         constraint_value_at(c1,7,array,(2,set,(var,\"Y\"))).\n"
             .to_string()
     );
 }
@@ -1036,17 +1068,17 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
             Expr::VarParIdentifier(id) => {
-                writeln!(buf, "constraint_type_at(c{},{},var_par).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},var_par).", i, cpos)?;
                 writeln!(
                     buf,
-                    "constraint_value_at(c{},{},value,{}).",
+                    "constraint_value_at(c{},{},var,{}).",
                     i,
                     cpos,
                     identifier(id)
                 )?;
             }
             Expr::Bool(e) => {
-                writeln!(buf, "constraint_type_at(c{},{},bool).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},bool).", i, cpos)?;
                 writeln!(
                     buf,
                     "constraint_value_at(c{},{},value,{}).",
@@ -1056,7 +1088,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 )?;
             }
             Expr::Int(e) => {
-                writeln!(buf, "constraint_type_at(c{},{},int).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},int).", i, cpos)?;
                 writeln!(
                     buf,
                     "constraint_value_at(c{},{},value,{}).",
@@ -1066,7 +1098,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 )?;
             }
             Expr::Float(e) => {
-                writeln!(buf, "constraint_type_at(c{},{},float).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},float).", i, cpos)?;
                 writeln!(
                     buf,
                     "constraint_value_at(c{},{},value,{}).",
@@ -1076,14 +1108,14 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 )?;
             }
             Expr::Set(e) => {
-                writeln!(buf, "constraint_type_at(c{},{},set).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},set).", i, cpos)?;
                 let set = dec_set_literal_expr(e);
                 for element in set {
                     writeln!(buf, "constraint_value_at(c{},{},{}).", i, cpos, element)?;
                 }
             }
             Expr::ArrayOfBool(v) => {
-                writeln!(buf, "constraint_type_at(c{},{},array).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},array).", i, cpos)?;
                 for (apos, ae) in v.iter().enumerate() {
                     writeln!(
                         buf,
@@ -1096,7 +1128,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 }
             }
             Expr::ArrayOfInt(v) => {
-                writeln!(buf, "constraint_type_at(c{},{},array).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},array).", i, cpos)?;
                 for (apos, ae) in v.iter().enumerate() {
                     writeln!(
                         buf,
@@ -1109,7 +1141,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 }
             }
             Expr::ArrayOfFloat(v) => {
-                writeln!(buf, "constraint_type_at(c{},{},array).", i, cpos,)?;
+                // writeln!(buf, "constraint_type_at(c{},{},array).", i, cpos,)?;
                 for (apos, ae) in v.iter().enumerate() {
                     writeln!(
                         buf,
@@ -1122,7 +1154,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 }
             }
             Expr::ArrayOfSet(v) => {
-                writeln!(buf, "constraint_type_at(c{},{},array_of_set).", i, cpos)?;
+                // writeln!(buf, "constraint_type_at(c{},{},array_of_set).", i, cpos)?;
                 for (apos, ae) in v.iter().enumerate() {
                     let set = dec_set_expr(ae);
                     for element in set {
