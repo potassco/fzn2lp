@@ -82,10 +82,20 @@ fn test_variables() {
         "variable_type(\"b\",float).\nvariable_value(\"b\",value,\"1\").\n".to_string()
     );
     let mut res = Vec::new();
+    write_fz_stmt(&mut res, "var 0.5..1.5: b = 1.0;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"b\",float,(bounds,value,\"0.5\",value,\"1.5\")).\n\
+         variable_value(\"b\",value,\"1\").\n"
+            .to_string()
+    );
+    let mut res = Vec::new();
     write_fz_stmt(&mut res, "var bool : c = true;", &mut counter, &mut level).unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"c\",bool).\nvariable_value(\"c\",value,true).\n".to_string()
+        "variable_type(\"c\",bool).\n\
+         variable_value(\"c\",value,true).\n"
+            .to_string()
     );
     let mut res = Vec::new();
     write_fz_stmt(
@@ -97,7 +107,10 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"d\",array(2,int)).\nvariable_value(\"d\",array,(0,value,42)).\nvariable_value(\"d\",array,(1,value,23)).\n".to_string()
+        "variable_type(\"d\",array(2,int)).\n\
+         variable_value(\"d\",array,(0,value,42)).\n\
+         variable_value(\"d\",array,(1,value,23)).\n"
+            .to_string()
     );
     let mut res = Vec::new();
     write_fz_stmt(
@@ -109,7 +122,10 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"e\",array(2,float)).\nvariable_value(\"e\",array,(0,value,\"42.1\")).\nvariable_value(\"e\",array,(1,value,\"23.1\")).\n".to_string()
+        "variable_type(\"e\",array(2,float)).\n\
+         variable_value(\"e\",array,(0,value,\"42.1\")).\n\
+         variable_value(\"e\",array,(1,value,\"23.1\")).\n"
+            .to_string()
     );
     let mut res = Vec::new();
     write_fz_stmt(
@@ -121,7 +137,9 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"f\",set_of_int,(range,17,42)).\nvariable_value(\"f\",set,(value,17)).\nvariable_value(\"f\",set,(value,23)).\n"
+        "variable_type(\"f\",set_of_int,(range,value,17,value,42)).\n\
+         variable_value(\"f\",set,(value,17)).\n\
+         variable_value(\"f\",set,(value,23)).\n"
             .to_string()
     );
     let mut res = Vec::new();
@@ -134,7 +152,11 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"f\",set_of_int,(set,17)).\nvariable_type(\"f\",set_of_int,(set,23)).\nvariable_type(\"f\",set_of_int,(set,100)).\nvariable_value(\"f\",set,(value,17)).\nvariable_value(\"f\",set,(value,23)).\n"
+        "variable_type(\"f\",set_of_int,(set,value,17)).\n\
+         variable_type(\"f\",set_of_int,(set,value,23)).\n\
+         variable_type(\"f\",set_of_int,(set,value,100)).\n\
+         variable_value(\"f\",set,(value,17)).\n\
+         variable_value(\"f\",set,(value,23)).\n"
             .to_string()
     );
     // let mut res = Vec::new(); // TODO: Check if set of floats are allowed
@@ -152,14 +174,112 @@ fn test_variables() {
     let mut res = Vec::new();
     write_fz_stmt(
         &mut res,
-        "array [1..2] of var set of 17..42: h = [{42,17},23..X];", //TODO: check empty set
+        "array [1..3] of var set of 17..42: h = [{42,17},23..X,{}];", //TODO: check empty set
         &mut counter,
         &mut level,
     )
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"h\",array(2,set_of_int,(range,17,42))).\nvariable_value(\"h\",array,(0,set,(value,42))).\nvariable_value(\"h\",array,(0,set,(value,17))).\nvariable_value(\"h\",array,(1,range,(value,23,var,\"X\"))).\n".to_string());
+        "variable_type(\"h\",array(3,set_of_int,(range,value,17,value,42))).\n\
+         variable_value(\"h\",array,(0,set,(value,42))).\n\
+         variable_value(\"h\",array,(0,set,(value,17))).\n\
+         variable_value(\"h\",array,(1,range,(value,23,var,\"X\"))).\n\
+         variable_value(\"h\",array,(2,empty_set)).\n"
+            .to_string()
+    );
+}
+
+#[test]
+fn test_parameters() {
+    let mut counter = 0;
+    let mut level = 0;
+    let mut res = Vec::new();
+    write_fz_stmt(&mut res, "int : a = 1;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "parameter_value(\"a\",value,1).\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(&mut res, "float : b = 1.1;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "parameter_value(\"b\",value,\"1.1\").\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(&mut res, "bool : c = true;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "parameter_value(\"c\",value,true).\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "array [1..2] of int : d = [42,23];",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "parameter_value(\"d\",array,(0,value,42)).\n\
+         parameter_value(\"d\",array,(1,value,23)).\n"
+            .to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "array [1..2] of float : e = [42.1,23.0];",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "parameter_value(\"e\",array,(0,value,\"42.1\")).\n\
+         parameter_value(\"e\",array,(1,value,\"23\")).\n"
+            .to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "set of int: f = 23..42;",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "parameter_value(\"f\",range,(value,23,value,42)).\n".to_string()
+    );
+    // let mut res = Vec::new(); // TODO: check if/where set of floats are allowed
+    // write_fz_stmt(
+    //     &mut res,
+    //     "set of float : g = {42.1,23.0};",
+    //     &mut counter,
+    //     &mut level,
+    // )
+    // .unwrap();
+    // assert_eq!(
+    //     std::str::from_utf8(&res).unwrap(),
+    //     "parameter_value(\"g\",set,(value,\"23\"))).\nparameter_value(\"g\",set,(value,\"42.1\"))).\n".to_string()
+    // );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "array [1..3] of set of int : h = [{42,17},1..5,{}];",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "parameter_value(\"h\",array,(0,set,(value,42))).\n\
+         parameter_value(\"h\",array,(0,set,(value,17))).\n\
+         parameter_value(\"h\",array,(1,range,(value,1,value,5))).\n\
+         parameter_value(\"h\",array,(2,empty_set)).\n"
+            .to_string()
+    );
 }
 fn write_fz_stmt(
     mut out: impl Write,
@@ -260,7 +380,7 @@ fn write_predicate(mut buf: impl Write, predicate: &PredicateItem) -> Result<()>
 fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
     match item {
         ParDeclItem::Bool { id, bool } => {
-            writeln!(buf, "variable_type({},bool).", identifier(id))?;
+            // writeln!(buf, "variable_type({},bool).", identifier(id))?;
             writeln!(
                 buf,
                 "parameter_value({},value,{}).",
@@ -269,7 +389,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             )?;
         }
         ParDeclItem::Int { id, int } => {
-            writeln!(buf, "variable_type({},int).", identifier(id))?;
+            // writeln!(buf, "variable_type({},int).", identifier(id))?;
             writeln!(
                 buf,
                 "parameter_value({},value,{}).",
@@ -278,7 +398,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             )?;
         }
         ParDeclItem::Float { id, float } => {
-            writeln!(buf, "variable_type({},float).", identifier(id))?;
+            // writeln!(buf, "variable_type({},float).", identifier(id))?;
             writeln!(
                 buf,
                 "parameter_value({},value,{}).",
@@ -290,23 +410,23 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             id,
             set_literal: sl,
         } => {
-            writeln!(buf, "variable_type({},set_of_int).", identifier(id))?;
+            // writeln!(buf, "variable_type({},set_of_int).", identifier(id))?;
             let set = dec_set_literal(sl);
             for element in set {
                 writeln!(buf, "parameter_value({},{}).", identifier(id), element)?;
             }
         }
         ParDeclItem::ArrayOfBool { ix, id, v } => {
-            writeln!(
-                buf,
-                "variable_type({},{}).",
-                identifier(id),
-                array_type(&index(ix), "bool")
-            )?;
+            // writeln!(
+            //     buf,
+            //     "variable_type({},{}).",
+            //     identifier(id),
+            //     array_type(&index(ix), "bool")
+            // )?;
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "parameter_value({},array,({},{})).",
+                    "parameter_value({},array,({},value,{})).",
                     identifier(id),
                     pos,
                     bool_literal(*e)
@@ -314,16 +434,16 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             }
         }
         ParDeclItem::ArrayOfInt { ix, id, v } => {
-            writeln!(
-                buf,
-                "variable_type({},{}).",
-                identifier(id),
-                array_type(&index(ix), "int")
-            )?;
+            // writeln!(
+            //     buf,
+            //     // "variable_type({},{}).",
+            //     identifier(id),
+            //     array_type(&index(ix), "int")
+            // )?;
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "parameter_value({},array,({},{})).",
+                    "parameter_value({},array,({},value,{})).",
                     identifier(id),
                     pos,
                     int_literal(e)
@@ -331,16 +451,16 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             }
         }
         ParDeclItem::ArrayOfFloat { ix, id, v } => {
-            writeln!(
-                buf,
-                "variable_type({},{}).",
-                identifier(id),
-                array_type(&index(ix), "float"),
-            )?;
+            // writeln!(
+            //     buf,
+            //     // "variable_type({},{}).",
+            //     identifier(id),
+            //     array_type(&index(ix), "float"),
+            // )?;
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "parameter_value({},array,({},{})).",
+                    "parameter_value({},array,({},value,{})).",
                     identifier(id),
                     pos,
                     float_literal(*e)
@@ -348,12 +468,12 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             }
         }
         ParDeclItem::ArrayOfSet { ix, id, v } => {
-            writeln!(
-                buf,
-                "variable_type({},{}).",
-                identifier(id),
-                array_type(&index(ix), "set")
-            )?;
+            // writeln!(
+            //     buf,
+            //     "variable_type({},{}).",
+            //     identifier(id),
+            //     array_type(&index(ix), "set")
+            // )?;
             for (pos, e) in v.iter().enumerate() {
                 let set = dec_set_literal(e);
                 for element in set {
@@ -511,7 +631,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             for element in set {
                 writeln!(
                     buf,
-                    "variable_type({},set_of_int,(set,{})).",
+                    "variable_type({},set_of_int,(set,value,{})).",
                     identifier(id),
                     element,
                 )?;
@@ -830,7 +950,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     buf,
                     "variable_type({},{}).",
                     identifier(id),
-                    array_type(&index(ix), &format!("set_of_int,(set,{})", element)),
+                    array_type(&index(ix), &format!("set_of_int,(set,value,{})", element)),
                 )?;
             }
             match array_expr {
@@ -891,15 +1011,23 @@ fn float_in_set(set: &[f64]) -> Vec<String> {
     ret
 }
 fn bounded_float(lb: f64, ub: f64) -> String {
-    format!("bounded_float({},{})", float_literal(lb), float_literal(ub))
+    format!(
+        "float,(bounds,value,{},value,{})",
+        float_literal(lb),
+        float_literal(ub)
+    )
 }
 fn subset_of_int_range(lb: &i128, ub: &i128) -> String {
-    format!("set_of_int,(range,{},{})", int_literal(lb), int_literal(ub))
+    format!(
+        "set_of_int,(range,value,{},value,{})",
+        int_literal(lb),
+        int_literal(ub)
+    )
 }
 fn subset_of_int_set(set: &[i128]) -> Vec<String> {
     let mut ret = vec![];
     for i in set {
-        ret.push(format!("set_of_int,(set,{})", int_literal(i)))
+        ret.push(format!("set_of_int,(set,value,{})", int_literal(i)))
     }
     ret
 }
@@ -1124,13 +1252,21 @@ fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
             ret.push(format!("range,({},{})", int_expr(i1), int_expr(i2)))
         }
         SetLiteralExpr::SetFloats(v) => {
-            for f in v {
-                ret.push(format!("set,({})", float_expr(f)));
+            if v.is_empty() {
+                ret.push(format!("empty_set"));
+            } else {
+                for f in v {
+                    ret.push(format!("set,({})", float_expr(f)));
+                }
             }
         }
         SetLiteralExpr::SetInts(v) => {
-            for i in v {
-                ret.push(format!("set,({})", int_expr(i)));
+            if v.is_empty() {
+                ret.push(format!("empty_set"));
+            } else {
+                for i in v {
+                    ret.push(format!("set,({})", int_expr(i)));
+                }
             }
         }
     }
@@ -1140,19 +1276,27 @@ fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
     let mut ret = Vec::new();
     match l {
         SetLiteral::BoundedFloat(f1, f2) => ret.push(format!(
-            "float_bound,({},{})",
+            "bounds,(value,{},value,{})",
             float_literal(*f1),
             float_literal(*f2)
         )),
-        SetLiteral::IntRange(i1, i2) => ret.push(format!("range,({},{})", i1, i2)),
+        SetLiteral::IntRange(i1, i2) => ret.push(format!("range,(value,{},value,{})", i1, i2)),
         SetLiteral::SetFloats(v) => {
-            for f in v {
-                ret.push(format!("set,({})", float_literal(*f)));
+            if v.is_empty() {
+                ret.push(format!("empty_set"));
+            } else {
+                for f in v {
+                    ret.push(format!("set,(value,{})", float_literal(*f)));
+                }
             }
         }
         SetLiteral::SetInts(v) => {
-            for f in v {
-                ret.push(format!("set,({})", f));
+            if v.is_empty() {
+                ret.push(format!("empty_set"));
+            } else {
+                for f in v {
+                    ret.push(format!("set,(value,{})", f));
+                }
             }
         }
     }
