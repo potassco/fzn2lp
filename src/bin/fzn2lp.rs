@@ -121,7 +121,20 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"f\",subset_of_int_range(17,42)).\nvariable_value(\"f\",set,(value,17)).\nvariable_value(\"f\",set,(value,23)).\n"
+        "variable_type(\"f\",set_of_int,(range,17,42)).\nvariable_value(\"f\",set,(value,17)).\nvariable_value(\"f\",set,(value,23)).\n"
+            .to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "var set of {17,23,100}: f = {17,23};",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"f\",set_of_int,(set,17)).\nvariable_type(\"f\",set_of_int,(set,23)).\nvariable_type(\"f\",set_of_int,(set,100)).\nvariable_value(\"f\",set,(value,17)).\nvariable_value(\"f\",set,(value,23)).\n"
             .to_string()
     );
     // let mut res = Vec::new(); // TODO: Check if set of floats are allowed
@@ -146,7 +159,7 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"h\",array(2,subset_of_int_range(17,42))).\nvariable_value(\"h\",array,(0,set,(value,42))).\nvariable_value(\"h\",array,(0,set,(value,17))).\nvariable_value(\"h\",array,(1,range,(value,23,var,\"X\"))).\n".to_string());
+        "variable_type(\"h\",array(2,set_of_int,(range,17,42))).\nvariable_value(\"h\",array,(0,set,(value,42))).\nvariable_value(\"h\",array,(0,set,(value,17))).\nvariable_value(\"h\",array,(1,range,(value,23,var,\"X\"))).\n".to_string());
 }
 fn write_fz_stmt(
     mut out: impl Write,
@@ -250,7 +263,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             writeln!(buf, "variable_type({},bool).", identifier(id))?;
             writeln!(
                 buf,
-                "variable_value({},value,{}).",
+                "parameter_value({},value,{}).",
                 identifier(id),
                 bool_literal(*bool)
             )?;
@@ -259,7 +272,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             writeln!(buf, "variable_type({},int).", identifier(id))?;
             writeln!(
                 buf,
-                "variable_value({},value,{}).",
+                "parameter_value({},value,{}).",
                 identifier(id),
                 int_literal(int)
             )?;
@@ -268,7 +281,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             writeln!(buf, "variable_type({},float).", identifier(id))?;
             writeln!(
                 buf,
-                "variable_value({},value,{}).",
+                "parameter_value({},value,{}).",
                 identifier(id),
                 float_literal(*float)
             )?;
@@ -280,7 +293,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             writeln!(buf, "variable_type({},set_of_int).", identifier(id))?;
             let set = dec_set_literal(sl);
             for element in set {
-                writeln!(buf, "variable_value({},{}).", identifier(id), element)?;
+                writeln!(buf, "parameter_value({},{}).", identifier(id), element)?;
             }
         }
         ParDeclItem::ArrayOfBool { ix, id, v } => {
@@ -293,7 +306,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "variable_value({},array,({},{})).",
+                    "parameter_value({},array,({},{})).",
                     identifier(id),
                     pos,
                     bool_literal(*e)
@@ -310,7 +323,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "variable_value({},array,({},{})).",
+                    "parameter_value({},array,({},{})).",
                     identifier(id),
                     pos,
                     int_literal(e)
@@ -327,7 +340,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "variable_value({},array,({},{})).",
+                    "parameter_value({},array,({},{})).",
                     identifier(id),
                     pos,
                     float_literal(*e)
@@ -346,7 +359,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
                 for element in set {
                     writeln!(
                         buf,
-                        "variable_value({},array,({},{})).",
+                        "parameter_value({},array,({},{})).",
                         identifier(id),
                         pos,
                         element
@@ -498,7 +511,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             for element in set {
                 writeln!(
                     buf,
-                    "variable_type({},subset_of_int_set({})).",
+                    "variable_type({},set_of_int,(set,{})).",
                     identifier(id),
                     element,
                 )?;
@@ -817,7 +830,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     buf,
                     "variable_type({},{}).",
                     identifier(id),
-                    array_type(&index(ix), &format!("subset_of_int_set({})", element)),
+                    array_type(&index(ix), &format!("set_of_int,(set,{})", element)),
                 )?;
             }
             match array_expr {
@@ -881,16 +894,12 @@ fn bounded_float(lb: f64, ub: f64) -> String {
     format!("bounded_float({},{})", float_literal(lb), float_literal(ub))
 }
 fn subset_of_int_range(lb: &i128, ub: &i128) -> String {
-    format!(
-        "subset_of_int_range({},{})",
-        int_literal(lb),
-        int_literal(ub)
-    )
+    format!("set_of_int,(range,{},{})", int_literal(lb), int_literal(ub))
 }
 fn subset_of_int_set(set: &[i128]) -> Vec<String> {
     let mut ret = vec![];
     for i in set {
-        ret.push(format!("subset_of_int_set({})", int_literal(i)))
+        ret.push(format!("set_of_int,(set,{})", int_literal(i)))
     }
     ret
 }
