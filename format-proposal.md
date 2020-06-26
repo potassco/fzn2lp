@@ -34,7 +34,7 @@ parameter_value("e",array,(1,value,"23")).
 % FZN
 set of int: f = 23..42;
 % ASP
-parameter_value("f",range,(23,42)).
+parameter_value("f",range,(value,23,value,42)).
 
 % FZN
 set of float : g = {42.1,23.0};
