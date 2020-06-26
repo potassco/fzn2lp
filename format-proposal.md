@@ -5,22 +5,50 @@
 Parameters of any kind:
 
 ```asp
-parameter_value("a",value,1).                   % single integer
-parameter_value("b",value,"1.0").               % single float
-parameter_value("c",value,true).                % single bool
-parameter_value("d",array,(0,value,42)).        % array of int
+% FZN
+int : a = 1;
+% ASP
+parameter_value("a",value,1).
+
+% FZN
+float : b = 1.1;
+% ASP
+parameter_value("b",value,"1.1").
+
+% FZN
+bool : c = true;
+% ASP
+parameter_value("c",value,true).
+
+% FZN
+array [1..2] of int : d = [42,23];
+% ASP
+parameter_value("d",array,(0,value,42)).
 parameter_value("d",array,(1,value,23)).
-parameter_value("e",array,(0,value,"42.0")).    % array of float
-parameter_value("e",array,(1,value,"23.0")).
-parameter_value("f",set,(value,17)).            % set of int
-parameter_value("f",set,(range,(23,42))).       % !! INVALID FZN 
-parameter_value("g",set,(value,"23.0"))).       % set of float
-parameter_value("g",set,(value,"42.0"))).
-parameter_value("h",array,(0,set,(value,42))).  % array of set of int
+
+% FZN
+array [1..2] of float : e = [42.1,23.0];
+parameter_value("e",array,(0,value,"42.1")).
+parameter_value("e",array,(1,value,"23")).
+
+% FZN
+set of int: f = 23..42;
+% ASP
+parameter_value("f",range,(23,42)).
+
+% FZN
+set of float : g = {42.1,23.0};
+% ASP
+parameter_value("g",set,(value,"23"))).
+parameter_value("g",set,(value,"42.1"))).
+
+% FZN
+array [1..3] of set of int : h = [{42,17},1..5,{}];
+% ASP
+parameter_value("h",array,(0,set,(value,42))).
 parameter_value("h",array,(0,set,(value,17))).
-parameter_value("h",array,(1,set,(range,(1,5)))).
-parameter_value("h",array,(1,set,(value,42))).
-parameter_value("h",array,(2,set,emptyset)).
+parameter_value("h",array,(1,range,(value,1,value,5))).
+parameter_value("h",array,(2,empty_set)).
 ```
 
 Variable **assignments** of any kind.
@@ -36,6 +64,12 @@ variable_value("a",value,1).
 var float : b = 1.0;
 % ASP
 variable_type("b",float).
+variable_value("b",value,"1").
+
+% FZN
+var 0.5..1.5: b = 1.0;
+% ASP
+variable_type("b",float,(bounds,value,"0.5",value,"1.5")).
 variable_value("b",value,"1").
 
 % FZN
@@ -61,28 +95,28 @@ variable_value("e",array,(1,value,"23.1")).
 % FZN
 var set of 17..42: f = {17,23};
 % ASP
-variable_type("f",set_of_int,(range,17,42)).
+variable_type("f",set_of_int,(range,value,17,value,42)).
 variable_value("f",set,(value,17)).
 variable_value("f",set,(value,23)).
 
-% TODO: Check if/how set of floats are allowed
 % FZN
-% var set of float: g = {23.1,42.1};
+var set of {17,23,100}: f = {17,23};
 % ASP
-% variable_value("g",set,(value,"23.1")).
-% variable_value("g",set,(value,"42.1")).
+variable_type("f",set_of_int,(set,value,17)).
+variable_type("f",set_of_int,(set,value,23)).
+variable_type("f",set_of_int,(set,value,100)).
+variable_value("f",set,(value,17)).
+variable_value("f",set,(value,23)).
 
-% FZN
-array [1..2] of var set of 17..42: h = [{42,17},23..X];  % TODO: check empty set
+%FZN
+array [1..3] of var set of 17..42: h = [{42,17},23..X,{}];
 % ASP
-variable_type("h",array(2,set_of_int,(range,17,42))).
+variable_type("h",array(3,set_of_int,(range,value,17,value,42))).
 variable_value("h",array,(0,set,(value,42))).
 variable_value("h",array,(0,set,(value,17))).
-variable_value("h",array,(1,range,(value,23,var,X))).
+variable_value("h",array,(1,range,(value,23,var,"X"))).
+variable_value("h",array,(2,empty_set)).
 
-% TODO: check empty set
-% ASP
-variable_value("h",array,(2,set,emptyset)).
 ```
 
 Variables:
