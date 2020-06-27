@@ -70,16 +70,27 @@ fn test_variables() {
     let mut counter = 0;
     let mut level = 0;
     let mut res = Vec::new();
-    write_fz_stmt(&mut res, "var int : a = 1;", &mut counter, &mut level).unwrap();
+    write_fz_stmt(
+        &mut res,
+        "var int : a :: output_var = 1;",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"a\",int).\nvariable_value(\"a\",value,1).\n".to_string()
+        "variable_type(\"a\",int).\n\
+         variable_value(\"a\",value,1).\n\
+         output_var(\"a\").\n"
+            .to_string()
     );
     let mut res = Vec::new();
     write_fz_stmt(&mut res, "var float : b = 1.0;", &mut counter, &mut level).unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"b\",float).\nvariable_value(\"b\",value,\"1\").\n".to_string()
+        "variable_type(\"b\",float).\n\
+         variable_value(\"b\",value,\"1\").\n"
+            .to_string()
     );
     let mut res = Vec::new();
     write_fz_stmt(&mut res, "var 0.5..1.5: b = 1.0;", &mut counter, &mut level).unwrap();
@@ -115,7 +126,7 @@ fn test_variables() {
     let mut res = Vec::new();
     write_fz_stmt(
         &mut res,
-        "array [1..2] of var float : e = [42.1,23.1];",
+        "array [1..2] of var float : e :: output_array([1..2, 1..2]) = [42.1,23.1];",
         &mut counter,
         &mut level,
     )
@@ -124,7 +135,9 @@ fn test_variables() {
         std::str::from_utf8(&res).unwrap(),
         "variable_type(\"e\",array(2,float)).\n\
          variable_value(\"e\",array,(0,value,\"42.1\")).\n\
-         variable_value(\"e\",array,(1,value,\"23.1\")).\n"
+         variable_value(\"e\",array,(1,value,\"23.1\")).\n\
+         output_array(\"e\",0,(1,2)).\n\
+         output_array(\"e\",1,(1,2)).\n"
             .to_string()
     );
     let mut res = Vec::new();
@@ -522,7 +535,6 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
     }
     Ok(())
 }
-
 fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
     match item {
         VarDeclItem::Bool { id, expr, annos } => {
@@ -535,6 +547,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     bool_expr(expr)
                 )?;
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::Int { id, expr, annos } => {
             writeln!(buf, "variable_type({},int).", identifier(id))?;
@@ -546,6 +559,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     int_expr(expr)
                 )?;
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::IntInRange {
             id,
@@ -568,6 +582,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     int_expr(expr)
                 )?;
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::IntInSet {
             id,
@@ -591,6 +606,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     int_expr(expr)
                 )?;
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::Float { id, expr, annos } => {
             writeln!(buf, "variable_type({},float).", identifier(id))?;
@@ -602,6 +618,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     float_expr(expr)
                 )?;
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::BoundedFloat {
             id,
@@ -624,6 +641,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     float_expr(expr)
                 )?;
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::SetOfInt { id, annos, expr } => {
             writeln!(buf, "variable_type({},set_of_int).", identifier(id))?;
@@ -633,6 +651,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     writeln!(buf, "variable_value({},{}).", identifier(id), element)?;
                 }
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::SubSetOfIntRange {
             id,
@@ -653,6 +672,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     writeln!(buf, "variable_value({},{}).", identifier(id), element)?;
                 }
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::SubSetOfIntSet {
             id,
@@ -674,6 +694,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     writeln!(buf, "variable_value({},{}).", identifier(id), element)?;
                 }
             }
+            write_output_var(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfBool {
             id,
@@ -709,6 +730,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfInt {
             id,
@@ -744,6 +766,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfIntInRange {
             id,
@@ -781,6 +804,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfIntInSet {
             id,
@@ -819,6 +843,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfFloat {
             id,
@@ -854,6 +879,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfBoundedFloat {
             id,
@@ -891,6 +917,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfSet {
             id,
@@ -929,6 +956,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfSubSetOfIntRange {
             id,
@@ -969,6 +997,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
         VarDeclItem::ArrayOfSubSetOfIntSet {
             id,
@@ -1009,6 +1038,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 }
                 None => {}
             }
+            write_output_array(buf, id, annos)?;
         }
     }
     Ok(())
@@ -1285,7 +1315,7 @@ fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
         }
         SetLiteralExpr::SetFloats(v) => {
             if v.is_empty() {
-                ret.push(format!("empty_set"));
+                ret.push("empty_set".to_string());
             } else {
                 for f in v {
                     ret.push(format!("set,({})", float_expr(f)));
@@ -1294,7 +1324,7 @@ fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
         }
         SetLiteralExpr::SetInts(v) => {
             if v.is_empty() {
-                ret.push(format!("empty_set"));
+                ret.push("empty_set".to_string());
             } else {
                 for i in v {
                     ret.push(format!("set,({})", int_expr(i)));
@@ -1315,7 +1345,7 @@ fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
         SetLiteral::IntRange(i1, i2) => ret.push(format!("range,(value,{},value,{})", i1, i2)),
         SetLiteral::SetFloats(v) => {
             if v.is_empty() {
-                ret.push(format!("empty_set"));
+                ret.push("empty_set".to_string());
             } else {
                 for f in v {
                     ret.push(format!("set,(value,{})", float_literal(*f)));
@@ -1324,7 +1354,7 @@ fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
         }
         SetLiteral::SetInts(v) => {
             if v.is_empty() {
-                ret.push(format!("empty_set"));
+                ret.push("empty_set".to_string());
             } else {
                 for f in v {
                     ret.push(format!("set,(value,{})", f));
@@ -1333,4 +1363,44 @@ fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
         }
     }
     ret
+}
+fn write_output_var(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Result<()> {
+    for a in annos {
+        if a.id == "output_var" {
+            writeln!(buf, "output_var({}).", identifier(id))?;
+            break;
+        }
+    }
+    Ok(())
+}
+fn write_output_array(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Result<()> {
+    for a in annos {
+        if a.id == "output_array" {
+            match a.expressions.get(0) {
+                Some(AnnExpr::Expr(Expr::ArrayOfSet(v))) => {
+                    for (pos, e) in v.iter().enumerate() {
+                        match e {
+                            SetExpr::Set(SetLiteralExpr::IntInRange(
+                                IntExpr::Int(lb),
+                                IntExpr::Int(ub),
+                            )) => {
+                                writeln!(
+                                    buf,
+                                    "output_array({},{},({},{})).",
+                                    identifier(id),
+                                    pos,
+                                    int_literal(lb),
+                                    int_literal(ub)
+                                )?;
+                            }
+                            x => panic!("unexpected set expr: {:?}", x),
+                        }
+                    }
+                }
+                _ => panic!("expected an array of index sets!"),
+            }
+            break;
+        }
+    }
+    Ok(())
 }
