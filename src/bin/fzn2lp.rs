@@ -88,15 +88,15 @@ fn test_variables() {
     write_fz_stmt(&mut res, "var 1..3 : a;", &mut counter, &mut level).unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"a\",range,(value,1,value,3)).\n".to_string()
+        "variable_type(\"a\",int,range,(value,1,value,3)).\n".to_string()
     );
     let mut res = Vec::new();
     write_fz_stmt(&mut res, "var {1,2,3} : a;", &mut counter, &mut level).unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"a\",set,(value,1)).\n\
-         variable_type(\"a\",set,(value,2)).\n\
-         variable_type(\"a\",set,(value,3)).\n"
+        "variable_type(\"a\",int,set,(value,1)).\n\
+         variable_type(\"a\",int,set,(value,2)).\n\
+         variable_type(\"a\",int,set,(value,3)).\n"
             .to_string()
     );
     let mut res = Vec::new();
@@ -605,13 +605,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             expr,
             annos,
         } => {
-            for element in set {
-                writeln!(
-                    buf,
-                    "variable_type({},set,(value,{})).",
-                    identifier(id),
-                    element,
-                )?;
+            for element in int_in_set(set) {
+                writeln!(buf, "variable_type({},{}).", identifier(id), element,)?;
             }
             if let Some(expr) = expr {
                 writeln!(
@@ -828,12 +823,12 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             array_expr,
             annos,
         } => {
-            for element in set {
+            for element in int_in_set(set) {
                 writeln!(
                     buf,
                     "variable_type({},{}).",
                     identifier(id),
-                    array_type(&index(ix), &format!("set,(value,{})", element))
+                    array_type(&index(ix), &element)
                 )?;
             }
             match array_expr {
@@ -1071,12 +1066,12 @@ fn basic_var_type(t: &BasicVarType) -> Vec<String> {
     }
 }
 fn int_in_range(lb: &i128, ub: &i128) -> String {
-    format!("range,(value,{},value,{})", lb, ub)
+    format!("int,range,(value,{},value,{})", lb, ub)
 }
 fn int_in_set(set: &[i128]) -> Vec<String> {
     let mut ret = vec![];
     for integer in set {
-        ret.push(format!("set,(value,{})", integer))
+        ret.push(format!("int,set,(value,{})", integer))
     }
     ret
 }
