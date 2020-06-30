@@ -85,6 +85,21 @@ fn test_variables() {
             .to_string()
     );
     let mut res = Vec::new();
+    write_fz_stmt(&mut res, "var 1..3 : a;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"a\",range,(value,1,value,3)).\n".to_string()
+    );
+    let mut res = Vec::new();
+    write_fz_stmt(&mut res, "var {1,2,3} : a;", &mut counter, &mut level).unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "variable_type(\"a\",set,(value,1)).\n\
+         variable_type(\"a\",set,(value,2)).\n\
+         variable_type(\"a\",set,(value,3)).\n"
+            .to_string()
+    );
+    let mut res = Vec::new();
     write_fz_stmt(&mut res, "var float : b = 1.0;", &mut counter, &mut level).unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
@@ -308,21 +323,21 @@ fn test_constraint() {
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
         "constraint(c1,\"bla\").\n\
-         constraint_value_at(c1,0,value,42).\n\
-         constraint_value_at(c1,1,value,\"42.1\").\n\
-         constraint_value_at(c1,2,value,true).\n\
-         constraint_value_at(c1,3,var,\"a\").\n\
-         constraint_value_at(c1,4,array,(0,value,42)).\n\
-         constraint_value_at(c1,4,array,(1,value,17)).\n\
-         constraint_value_at(c1,4,array,(2,var,\"X\")).\n\
-         constraint_value_at(c1,5,set,(var,\"X\")).\n\
-         constraint_value_at(c1,5,set,(value,34)).\n\
-         constraint_value_at(c1,6,range,(value,37,value,48)).\n\
-         constraint_value_at(c1,7,array,(0,set,(value,42))).\n\
-         constraint_value_at(c1,7,array,(0,set,(value,17))).\n\
-         constraint_value_at(c1,7,array,(1,range,(value,17,value,34))).\n\
-         constraint_value_at(c1,7,array,(2,set,(var,\"X\"))).\n\
-         constraint_value_at(c1,7,array,(2,set,(var,\"Y\"))).\n"
+         constraint_value(c1,0,value,42).\n\
+         constraint_value(c1,1,value,\"42.1\").\n\
+         constraint_value(c1,2,value,true).\n\
+         constraint_value(c1,3,var,\"a\").\n\
+         constraint_value(c1,4,array,(0,value,42)).\n\
+         constraint_value(c1,4,array,(1,value,17)).\n\
+         constraint_value(c1,4,array,(2,var,\"X\")).\n\
+         constraint_value(c1,5,set,(var,\"X\")).\n\
+         constraint_value(c1,5,set,(value,34)).\n\
+         constraint_value(c1,6,range,(value,37,value,48)).\n\
+         constraint_value(c1,7,array,(0,set,(value,42))).\n\
+         constraint_value(c1,7,array,(0,set,(value,17))).\n\
+         constraint_value(c1,7,array,(1,range,(value,17,value,34))).\n\
+         constraint_value(c1,7,array,(2,set,(var,\"X\"))).\n\
+         constraint_value(c1,7,array,(2,set,(var,\"Y\"))).\n"
             .to_string()
     );
 }
@@ -593,7 +608,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             for element in set {
                 writeln!(
                     buf,
-                    "variable_type({},int_in_set({})).",
+                    "variable_type({},set,(value,{})).",
                     identifier(id),
                     element,
                 )?;
@@ -818,7 +833,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     buf,
                     "variable_type({},{}).",
                     identifier(id),
-                    array_type(&index(ix), &format!("int_in_set({})", element))
+                    array_type(&index(ix), &format!("set,(value,{})", element))
                 )?;
             }
             match array_expr {
@@ -1056,12 +1071,12 @@ fn basic_var_type(t: &BasicVarType) -> Vec<String> {
     }
 }
 fn int_in_range(lb: &i128, ub: &i128) -> String {
-    format!("int_in_range({},{})", lb, ub)
+    format!("range,(value,{},value,{})", lb, ub)
 }
 fn int_in_set(set: &[i128]) -> Vec<String> {
     let mut ret = vec![];
     for integer in set {
-        ret.push(format!("int_in_set({})", integer))
+        ret.push(format!("set,(value,{})", integer))
     }
     ret
 }
@@ -1101,7 +1116,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 // writeln!(buf, "constraint_type_at(c{},{},var_par).", i, cpos)?;
                 writeln!(
                     buf,
-                    "constraint_value_at(c{},{},var,{}).",
+                    "constraint_value(c{},{},var,{}).",
                     i,
                     cpos,
                     identifier(id)
@@ -1111,7 +1126,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 // writeln!(buf, "constraint_type_at(c{},{},bool).", i, cpos)?;
                 writeln!(
                     buf,
-                    "constraint_value_at(c{},{},value,{}).",
+                    "constraint_value(c{},{},value,{}).",
                     i,
                     cpos,
                     bool_literal(*e)
@@ -1121,7 +1136,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 // writeln!(buf, "constraint_type_at(c{},{},int).", i, cpos)?;
                 writeln!(
                     buf,
-                    "constraint_value_at(c{},{},value,{}).",
+                    "constraint_value(c{},{},value,{}).",
                     i,
                     cpos,
                     int_literal(e)
@@ -1131,7 +1146,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 // writeln!(buf, "constraint_type_at(c{},{},float).", i, cpos)?;
                 writeln!(
                     buf,
-                    "constraint_value_at(c{},{},value,{}).",
+                    "constraint_value(c{},{},value,{}).",
                     i,
                     cpos,
                     float_literal(*e)
@@ -1141,7 +1156,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 // writeln!(buf, "constraint_type_at(c{},{},set).", i, cpos)?;
                 let set = dec_set_literal_expr(e);
                 for element in set {
-                    writeln!(buf, "constraint_value_at(c{},{},{}).", i, cpos, element)?;
+                    writeln!(buf, "constraint_value(c{},{},{}).", i, cpos, element)?;
                 }
             }
             Expr::ArrayOfBool(v) => {
@@ -1149,7 +1164,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 for (apos, ae) in v.iter().enumerate() {
                     writeln!(
                         buf,
-                        "constraint_value_at(c{},{},array,({},{})).",
+                        "constraint_value(c{},{},array,({},{})).",
                         i,
                         cpos,
                         apos,
@@ -1162,7 +1177,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 for (apos, ae) in v.iter().enumerate() {
                     writeln!(
                         buf,
-                        "constraint_value_at(c{},{},array,({},{})).",
+                        "constraint_value(c{},{},array,({},{})).",
                         i,
                         cpos,
                         apos,
@@ -1175,7 +1190,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                 for (apos, ae) in v.iter().enumerate() {
                     writeln!(
                         buf,
-                        "constraint_value_at(c{},{},array,({},{})).",
+                        "constraint_value(c{},{},array,({},{})).",
                         i,
                         cpos,
                         apos,
@@ -1190,7 +1205,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                     for element in set {
                         writeln!(
                             buf,
-                            "constraint_value_at(c{},{},array,({},{})).",
+                            "constraint_value(c{},{},array,({},{})).",
                             i, cpos, apos, element
                         )?;
                     }
