@@ -165,7 +165,7 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"f\",set_of_int,(range,value,17,value,42)).\n\
+        "variable_type(\"f\",set_of_int,range,(value,17,value,42)).\n\
          variable_value(\"f\",set,(value,17)).\n\
          variable_value(\"f\",set,(value,23)).\n"
             .to_string()
@@ -180,9 +180,9 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"f\",set_of_int,(set,value,17)).\n\
-         variable_type(\"f\",set_of_int,(set,value,23)).\n\
-         variable_type(\"f\",set_of_int,(set,value,100)).\n\
+        "variable_type(\"f\",set_of_int,set,(value,17)).\n\
+         variable_type(\"f\",set_of_int,set,(value,23)).\n\
+         variable_type(\"f\",set_of_int,set,(value,100)).\n\
          variable_value(\"f\",set,(value,17)).\n\
          variable_value(\"f\",set,(value,23)).\n"
             .to_string()
@@ -209,7 +209,7 @@ fn test_variables() {
     .unwrap();
     assert_eq!(
         std::str::from_utf8(&res).unwrap(),
-        "variable_type(\"h\",array(3,set_of_int,(range,value,17,value,42))).\n\
+        "variable_type(\"h\",array(3,set_of_int,range,(value,17,value,42))).\n\
          variable_value(\"h\",array,(0,set,(value,42))).\n\
          variable_value(\"h\",array,(0,set,(value,17))).\n\
          variable_value(\"h\",array,(1,range,(value,23,var,\"X\"))).\n\
@@ -693,7 +693,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             for element in set {
                 writeln!(
                     buf,
-                    "variable_type({},set_of_int,(set,value,{})).",
+                    "variable_type({},set_of_int,set,(value,{})).",
                     identifier(id),
                     element,
                 )?;
@@ -1021,7 +1021,7 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     buf,
                     "variable_type({},{}).",
                     identifier(id),
-                    array_type(&index(ix), &format!("set_of_int,(set,value,{})", element)),
+                    array_type(&index(ix), &format!("set_of_int,set,(value,{})", element)),
                 )?;
             }
             match array_expr {
@@ -1091,7 +1091,7 @@ fn bounded_float(lb: f64, ub: f64) -> String {
 }
 fn subset_of_int_range(lb: &i128, ub: &i128) -> String {
     format!(
-        "set_of_int,(range,value,{},value,{})",
+        "set_of_int,range,(value,{},value,{})",
         int_literal(lb),
         int_literal(ub)
     )
@@ -1099,7 +1099,7 @@ fn subset_of_int_range(lb: &i128, ub: &i128) -> String {
 fn subset_of_int_set(set: &[i128]) -> Vec<String> {
     let mut ret = vec![];
     for i in set {
-        ret.push(format!("set_of_int,(set,value,{})", int_literal(i)))
+        ret.push(format!("set_of_int,set,(value,{})", int_literal(i)))
     }
     ret
 }
@@ -1315,11 +1315,9 @@ fn dec_set_expr(e: &SetExpr) -> Vec<String> {
 fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
     let mut ret = Vec::new();
     match l {
-        SetLiteralExpr::BoundedFloat(f1, f2) => ret.push(format!(
-            "float_bound,({},{})",
-            float_expr(f1),
-            float_expr(f2)
-        )),
+        SetLiteralExpr::BoundedFloat(f1, f2) => {
+            ret.push(format!("bounds,({},{})", float_expr(f1), float_expr(f2)))
+        }
         SetLiteralExpr::IntInRange(i1, i2) => {
             ret.push(format!("range,({},{})", int_expr(i1), int_expr(i2)))
         }
