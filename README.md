@@ -75,7 +75,8 @@ For the representation of the array see [*Representation of arrays*](#representa
 
 Variable declarations are presented by facts of form:
 
-    variable(VariableName, Type).
+    variable_type(VariableName, Type).
+    variable_value(VariableName, Value).
 
 For example:
 
@@ -83,7 +84,7 @@ For example:
 
 is represented as:
 
-    variable("X_35", bool).
+    variable_type("X_35", bool).
 
 For other parameter types see [*Parameter/variable types*](#parametervariable-types).
 
@@ -96,27 +97,13 @@ Parameters or variables of type *array* like:
 
 are represented by facts
 
-    parameter("X", array(2,int)).
-    variable("Y", array(2,int)).
-
-The array itself represented by using the predicate `in_array/3`:
-
-    in_array(Id, Pos, Element)
-
-where
-
-- `Id`: is the name of the array
-- `Pos`: is the position in the array
-- `Element`: is the element at position `Pos`
-
-For example:
-
-    in_array("X", 0, 1).
-    in_array("X", 1, -1).
-    in_array("X", 2, 5).
-    in_array("Y", 0, "Y_0").
-    in_array("Y", 1, "Y_1").
-    in_array("Y", 2, "Y_2").
+    parameter("X", array(2,int),array_at(0,1)).
+    parameter("X", array(2,int),array_at(1,-1)).
+    parameter("X", array(2,int),array_at(3,5)).
+    variable_type("Y", array(2,int)).
+    variable_value("Y", array_at(0,"Y_0")).
+    variable_value("Y", array_at(1,"Y_1")).
+    variable_value("Y", array_at(2,"Y_2")).
 
 ### Constraints
 
@@ -166,10 +153,10 @@ Basic types are:
 - `int`
 - `float`
 - `int_in_range(lb,ub)` where `lb` and `ub` are integers,
-- `float_in_range(lb,ub)` where `lb` and `ub` are quoted float literals,
+- `bounded_float(lb,ub)` where `lb` and `ub` are quoted float literals,
 - `set_of_int_in_range(lb,ub)`  where `lb` and `ub` are integers,
 <!-- - `set_of_int_in_set(set_id)` where set_id is the id of a set -->
 
 Further types are:
 
-- `array(i,t)`  where `i` is an integer denoting the length of the array or `int` and `t` is a basic type..
+- `array(i,t)`  where `i` is an integer denoting the length of the array or `int` and `t` is a basic type.
