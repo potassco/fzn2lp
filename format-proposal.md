@@ -63,14 +63,14 @@ variable_value("a",value,1).
 % FZN
 var 1..3 : a;
 % ASP
-variable_type("a",range,(value,1,value,3)).
+variable_type("a",int,range,(value,1,value,3)).
 
 % FZN
 var {1,2,3} : a;
 % ASP
-variable_type("a",set,(value,1)).
-variable_type("a",set,(value,2)).
-variable_type("a",set,(value,3)).
+variable_type("a",int,set,(value,1)).
+variable_type("a",int,set,(value,2)).
+variable_type("a",int,set,(value,3)).
 
 % FZN
 var float : b = 1.0;
