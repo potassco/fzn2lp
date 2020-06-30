@@ -107,23 +107,23 @@ variable_value("e",array,(1,value,"23.1")).
 % FZN
 var set of 17..42: f = {17,23};
 % ASP
-variable_type("f",set_of_int,(range,value,17,value,42)).
+variable_type("f",set_of_int,range,(value,17,value,42)).
 variable_value("f",set,(value,17)).
 variable_value("f",set,(value,23)).
 
 % FZN
 var set of {17,23,100}: f = {17,23};
 % ASP
-variable_type("f",set_of_int,(set,value,17)).
-variable_type("f",set_of_int,(set,value,23)).
-variable_type("f",set_of_int,(set,value,100)).
+variable_type("f",set_of_int,set,(value,17)).
+variable_type("f",set_of_int,set,(value,23)).
+variable_type("f",set_of_int,set,(value,100)).
 variable_value("f",set,(value,17)).
 variable_value("f",set,(value,23)).
 
 %FZN
 array [1..3] of var set of 17..42: h = [{42,17},23..X,{}];
 % ASP
-variable_type("h",array(3,set_of_int,(range,value,17,value,42))).
+variable_type("h",array(3,set_of_int,range,(value,17,value,42))).
 variable_value("h",array,(0,set,(value,42))).
 variable_value("h",array,(0,set,(value,17))).
 variable_value("h",array,(1,range,(value,23,var,"X"))).
