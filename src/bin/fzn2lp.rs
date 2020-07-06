@@ -66,6 +66,45 @@ pub enum FlatZincError {
     ParseError { msg: String },
 }
 #[test]
+fn test_predicates() {
+    let mut counter = 0;
+    let mut level = 0;
+    let mut res = Vec::new();
+    write_fz_stmt(
+        &mut res,
+        "predicate my_pred(int:a, {1,2,3}:a2, 1..11:a3, float:b, bool:c,\
+                   set of int: d, set of {1,2,3}: e, set of 1..11: f,\
+                   array [int] of int:g, array [int] of {1,2,3}:h, array [int] of 1..11:i,\
+                   array [int] of set of int:j);",
+        &mut counter,
+        &mut level,
+    )
+    .unwrap();
+    assert_eq!(
+        std::str::from_utf8(&res).unwrap(),
+        "predicate(\"my_pred\").\n\
+        predicate_parameter(\"my_pred\",0,\"a\",int).\n\
+        predicate_parameter(\"my_pred\",1,\"a2\",int,set,(value,1)).\n\
+        predicate_parameter(\"my_pred\",1,\"a2\",int,set,(value,2)).\n\
+        predicate_parameter(\"my_pred\",1,\"a2\",int,set,(value,3)).\n\
+        predicate_parameter(\"my_pred\",2,\"a3\",int,range,(value,1,value,11)).\n\
+        predicate_parameter(\"my_pred\",3,\"b\",float).\n\
+        predicate_parameter(\"my_pred\",4,\"c\",bool).\n\
+        predicate_parameter(\"my_pred\",5,\"d\",set_of_int).\n\
+        predicate_parameter(\"my_pred\",6,\"e\",set_of_int,set,(value,1)).\n\
+        predicate_parameter(\"my_pred\",6,\"e\",set_of_int,set,(value,2)).\n\
+        predicate_parameter(\"my_pred\",6,\"e\",set_of_int,set,(value,3)).\n\
+        predicate_parameter(\"my_pred\",7,\"f\",set_of_int,range,(value,1,value,11)).\n\
+        predicate_parameter(\"my_pred\",8,\"g\",array(int,int)).\n\
+        predicate_parameter(\"my_pred\",9,\"h\",array(int,int,set,(value,1))).\n\
+        predicate_parameter(\"my_pred\",9,\"h\",array(int,int,set,(value,2))).\n\
+        predicate_parameter(\"my_pred\",9,\"h\",array(int,int,set,(value,3))).\n\
+        predicate_parameter(\"my_pred\",10,\"i\",array(int,int,range,(value,1,value,11))).\n\
+        predicate_parameter(\"my_pred\",11,\"j\",array(int,set_of_int)).\n"
+            .to_string()
+    );
+}
+#[test]
 fn test_variables() {
     let mut counter = 0;
     let mut level = 0;
@@ -309,7 +348,7 @@ fn test_parameters() {
     );
 }
 #[test]
-fn test_constraint() {
+fn test_constraints() {
     let mut counter = 0;
     let mut level = 0;
     let mut res = Vec::new();
