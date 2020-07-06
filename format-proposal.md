@@ -1,8 +1,36 @@
 # Format proposal
 
-- **PRE: parameters and variables share their namespace**
+Predicates:
 
-Parameters of any kind:
+```asp
+% FZN
+predicate my_pred(int:a, {1,2,3}:a2, 1..11:a3, float:b, bool:c,
+               set of int: d, set of {1,2,3}: e, set of 1..11: f,
+               array [int] of int:g, array [int] of {1,2,3}:h, array [int] of 1..11:i,
+               array [int] of set of int:j);
+% ASP
+predicate("my_pred").
+predicate_parameter("my_pred",0,"a",int).
+predicate_parameter("my_pred",1,"a2",int,set,(value,1)).
+predicate_parameter("my_pred",1,"a2",int,set,(value,2)).
+predicate_parameter("my_pred",1,"a2",int,set,(value,3)).
+predicate_parameter("my_pred",2,"a3",int,range,(value,1,value,11)).
+predicate_parameter("my_pred",3,"b",float).
+predicate_parameter("my_pred",4,"c",bool).
+predicate_parameter("my_pred",5,"d",set_of_int).
+predicate_parameter("my_pred",6,"e",set_of_int,set,(value,1)).
+predicate_parameter("my_pred",6,"e",set_of_int,set,(value,2)).
+predicate_parameter("my_pred",6,"e",set_of_int,set,(value,3)).
+predicate_parameter("my_pred",7,"f",set_of_int,range,(value,1,value,11)).
+predicate_parameter("my_pred",8,"g",array(int,int)).
+predicate_parameter("my_pred",9,"h",array(int,int,set,(value,1))).
+predicate_parameter("my_pred",9,"h",array(int,int,set,(value,2))).
+predicate_parameter("my_pred",9,"h",array(int,int,set,(value,3))).
+predicate_parameter("my_pred",10,"i",array(int,int,range,(value,1,value,11))).
+predicate_parameter("my_pred",11,"j",array(int,set_of_int)).
+```
+
+Parameters:
 
 ```asp
 % FZN
@@ -51,7 +79,7 @@ parameter_value("h",array,(1,range,(value,1,value,5))).
 parameter_value("h",array,(2,empty_set)).
 ```
 
-Variable **assignments** of any kind.
+Variables:
 
 ```asp
 % FZN
@@ -129,26 +157,6 @@ variable_value("h",array,(0,set,(value,17))).
 variable_value("h",array,(1,range,(value,23,var,"X"))).
 variable_value("h",array,(2,empty_set)).
 
-```
-
-Variables:
-
-```asp
-variable_type("a", int).
-variable_type("b", float).
-variable_type("c", bool).
-variable_type("d", int, (range,23,42)).
-variable_type("e", int, (set,23)).
-variable_type("e", int, (set,42)).
-variable_type("f", float, (range,23,42)).
-variable_type("g", array(20,int, (range,17,23))).               % 20 elements of int in the range 17..23
-variable_type("h", array(20,int)).                              % 20 elements of int
-variable_type("i", array(20,int, (set,23))).                    % 20 elements of int from the set {23,25}
-variable_type("i", array(20,int, (set,25))).
-variable_type("j", array(20,set_of_int, (set,23))).             % 20 elements of set of ints from {23,2}
-variable_type("j", array(20,set_of_int, (set,2))).
-variable_type("j2", array(20,set_of_int, (range,43,56)))).      % 20 elements of set of ints from 43..56
-variable_type("k", array(20,set_of_int)).                       % 20 elements of set of ints
 ```
 
 Constraints:
