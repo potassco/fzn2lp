@@ -1,5 +1,5 @@
 
-# fzn2lp [![Build Status](https://github.com/sthiele/fzn2lp/workflows/CI%20Test/badge.svg)](https://github.com/sthiele/fzn2lp)
+# fzn2lp [![Build Status](https://github.com/potassco/fzn2lp/workflows/CI%20Test/badge.svg)](https://github.com/potassco/fzn2lp)
 
 A FlatZinc to AnsProlog converter.
 
@@ -9,13 +9,13 @@ A FlatZinc to AnsProlog converter.
 
 ## Download
 
-Binaries for 64bit linux and macOS can be found on the [release page](https://github.com/sthiele/fzn2lp/releases/latest).
+Binaries for 64bit linux and macOS can be found on the [release page](https://github.com/potassco/fzn2lp/releases/latest).
 
 ## Compile yourself
 
 Clone the git repository:
 
-    git clone https://github.com/sthiele/fzn2lp.git
+    git clone https://github.com/potassco/fzn2lp.git
     cargo build --release
 
 The executables can be found under `./target/release/`
