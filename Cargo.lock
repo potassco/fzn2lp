@@ -87,7 +87,7 @@ dependencies = [
  "anyhow",
  "log",
  "nom",
- "stderrlog",
+ "stderrlog 0.4.3",
  "structopt",
 ]
 
@@ -98,7 +98,7 @@ dependencies = [
  "anyhow",
  "flatzinc",
  "log",
- "stderrlog",
+ "stderrlog 0.5.0",
  "structopt",
  "thiserror",
 ]
@@ -273,7 +273,20 @@ dependencies = [
  "chrono",
  "log",
  "termcolor",
- "thread_local",
+ "thread_local 0.3.4",
+]
+
+[[package]]
+name = "stderrlog"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b02f316286ae558d83acc93dd81eaba096e746987a7961d4a9ae026842bae67f"
+dependencies = [
+ "atty",
+ "chrono",
+ "log",
+ "termcolor",
+ "thread_local 1.0.1",
 ]
 
 [[package]]
@@ -375,6 +388,15 @@ checksum = "1697c4b57aeeb7a536b647165a2825faddffb1d3bad386d507709bd51a90bb14"
 dependencies = [
  "lazy_static 0.2.11",
  "unreachable",
+]
+
+[[package]]
+name = "thread_local"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d40c6d1b69745a6ec6fb1ca717914848da4b44ae29d9b3080cbee91d72a69b14"
+dependencies = [
+ "lazy_static 1.4.0",
 ]
 
 [[package]]
