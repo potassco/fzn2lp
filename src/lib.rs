@@ -436,19 +436,14 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             )?;
         }
         ParDeclItem::Int { id, int } => {
-            writeln!(
-                buf,
-                "parameter_value({},value,{}).",
-                identifier(id),
-                int_literal(int)
-            )?;
+            writeln!(buf, "parameter_value({},value,{}).", identifier(id), int)?;
         }
         ParDeclItem::Float { id, float } => {
             writeln!(
                 buf,
-                "parameter_value({},value,{}).",
+                "parameter_value({},value,\"{}\").",
                 identifier(id),
-                float_literal(*float)
+                float
             )?;
         }
         ParDeclItem::SetOfInt {
@@ -472,24 +467,24 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             }
         }
         ParDeclItem::ArrayOfInt { ix: _, id, v } => {
-            for (pos, e) in v.iter().enumerate() {
+            for (pos, int) in v.iter().enumerate() {
                 writeln!(
                     buf,
                     "parameter_value({},array,({},value,{})).",
                     identifier(id),
                     pos,
-                    int_literal(e)
+                    int
                 )?;
             }
         }
         ParDeclItem::ArrayOfFloat { ix: _, id, v } => {
-            for (pos, e) in v.iter().enumerate() {
+            for (pos, float) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "parameter_value({},array,({},value,{})).",
+                    "parameter_value({},array,({},value,\"{}\")).",
                     identifier(id),
                     pos,
-                    float_literal(*e)
+                    float
                 )?;
             }
         }
@@ -1044,28 +1039,20 @@ fn int_in_set(set: &[i128]) -> Vec<String> {
 fn float_in_set(set: &[f64]) -> Vec<String> {
     let mut ret = vec![];
     for float in set {
-        ret.push(format!("float_in_set({})", float))
+        ret.push(format!("float_in_set(\"{}\")", float))
     }
     ret
 }
 fn bounded_float(lb: f64, ub: f64) -> String {
-    format!(
-        "float,(bounds,value,{},value,{})",
-        float_literal(lb),
-        float_literal(ub)
-    )
+    format!("float,(bounds,value,\"{}\",value,\"{}\")", lb, ub)
 }
 fn subset_of_int_range(lb: &i128, ub: &i128) -> String {
-    format!(
-        "set_of_int,range,(value,{},value,{})",
-        int_literal(lb),
-        int_literal(ub)
-    )
+    format!("set_of_int,range,(value,{},value,{})", lb, ub)
 }
 fn subset_of_int_set(set: &[i128]) -> Vec<String> {
     let mut ret = vec![];
     for i in set {
-        ret.push(format!("set_of_int,set,(value,{})", int_literal(i)))
+        ret.push(format!("set_of_int,set,(value,{})", i))
     }
     ret
 }
@@ -1093,24 +1080,16 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                     bool_literal(*e)
                 )?;
             }
-            Expr::Int(e) => {
+            Expr::Int(int) => {
                 // writeln!(buf, "constraint_type_at(c{},{},int).", i, cpos)?;
-                writeln!(
-                    buf,
-                    "constraint_value(c{},{},value,{}).",
-                    i,
-                    cpos,
-                    int_literal(e)
-                )?;
+                writeln!(buf, "constraint_value(c{},{},value,{}).", i, cpos, int)?;
             }
-            Expr::Float(e) => {
+            Expr::Float(float) => {
                 // writeln!(buf, "constraint_type_at(c{},{},float).", i, cpos)?;
                 writeln!(
                     buf,
-                    "constraint_value(c{},{},value,{}).",
-                    i,
-                    cpos,
-                    float_literal(*e)
+                    "constraint_value(c{},{},value,\"{}\").",
+                    i, cpos, float
                 )?;
             }
             Expr::Set(e) => {
@@ -1256,21 +1235,15 @@ fn bool_literal(b: bool) -> String {
 }
 fn int_expr(e: &IntExpr) -> String {
     match e {
-        IntExpr::Int(i) => format!("value,{}", int_literal(i)),
+        IntExpr::Int(int) => format!("value,{}", int),
         IntExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
     }
 }
-fn int_literal(i: &i128) -> String {
-    i.to_string()
-}
 fn float_expr(e: &FloatExpr) -> String {
     match e {
-        FloatExpr::Float(f) => format!("value,{}", float_literal(*f)),
+        FloatExpr::Float(float) => format!("value,\"{}\"", float),
         FloatExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
     }
-}
-fn float_literal(f: f64) -> String {
-    format!("\"{}\"", f)
 }
 fn dec_set_expr(e: &SetExpr) -> Vec<String> {
     match e {
@@ -1311,18 +1284,16 @@ fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
 fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
     let mut ret = Vec::new();
     match l {
-        SetLiteral::BoundedFloat(f1, f2) => ret.push(format!(
-            "bounds,(value,{},value,{})",
-            float_literal(*f1),
-            float_literal(*f2)
-        )),
+        SetLiteral::BoundedFloat(f1, f2) => {
+            ret.push(format!("bounds,(value,\"{}\",value,\"{}\")", f1, f2))
+        }
         SetLiteral::IntRange(i1, i2) => ret.push(format!("range,(value,{},value,{})", i1, i2)),
         SetLiteral::SetFloats(v) => {
             if v.is_empty() {
                 ret.push("empty_set".to_string());
             } else {
                 for f in v {
-                    ret.push(format!("set,(value,{})", float_literal(*f)));
+                    ret.push(format!("set,(value,\"{}\")", f));
                 }
             }
         }
@@ -1363,8 +1334,8 @@ fn write_output_array(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Re
                                     "output_array({},{},({},{})).",
                                     identifier(id),
                                     pos,
-                                    int_literal(lb),
-                                    int_literal(ub)
+                                    lb,
+                                    ub
                                 )?;
                             }
                             x => panic!("unexpected set expr: {:?}", x),
