@@ -394,18 +394,15 @@ pub fn write_fz_stmt(
 }
 
 fn write_predicate(mut buf: impl Write, predicate: &PredicateItem) -> Result<()> {
-    writeln!(buf, "predicate({}).", identifier(&predicate.id))?;
+    writeln!(buf, "predicate(\"{}\").", predicate.id)?;
     for (pos, p) in predicate.parameters.iter().enumerate() {
         match p {
             (PredParType::Basic(par_type), id) => {
                 for element in basic_pred_par_type(&par_type) {
                     writeln!(
                         buf,
-                        "predicate_parameter({},{},{},{}).",
-                        identifier(&predicate.id),
-                        pos,
-                        identifier(id),
-                        element
+                        "predicate_parameter(\"{}\",{},\"{}\",{}).",
+                        predicate.id, pos, id, element
                     )?;
                 }
             }
@@ -413,10 +410,10 @@ fn write_predicate(mut buf: impl Write, predicate: &PredicateItem) -> Result<()>
                 for element in basic_pred_par_type(&par_type) {
                     writeln!(
                         buf,
-                        "predicate_parameter({},{},{},{}).",
-                        identifier(&predicate.id),
+                        "predicate_parameter(\"{}\",{},\"{}\",{}).",
+                        predicate.id,
                         pos,
-                        identifier(id),
+                        id,
                         array_type(&pred_index(&ix), &element)
                     )?;
                 }
@@ -430,21 +427,16 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
         ParDeclItem::Bool { id, bool } => {
             writeln!(
                 buf,
-                "parameter_value({},value,{}).",
-                identifier(id),
+                "parameter_value(\"{}\",value,{}).",
+                id,
                 bool_literal(*bool)
             )?;
         }
         ParDeclItem::Int { id, int } => {
-            writeln!(buf, "parameter_value({},value,{}).", identifier(id), int)?;
+            writeln!(buf, "parameter_value(\"{}\",value,{}).", id, int)?;
         }
         ParDeclItem::Float { id, float } => {
-            writeln!(
-                buf,
-                "parameter_value({},value,\"{}\").",
-                identifier(id),
-                float
-            )?;
+            writeln!(buf, "parameter_value(\"{}\",value,\"{}\").", id, float)?;
         }
         ParDeclItem::SetOfInt {
             id,
@@ -452,15 +444,15 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
         } => {
             let set = dec_set_literal(sl);
             for element in set {
-                writeln!(buf, "parameter_value({},{}).", identifier(id), element)?;
+                writeln!(buf, "parameter_value(\"{}\",{}).", id, element)?;
             }
         }
         ParDeclItem::ArrayOfBool { ix: _, id, v } => {
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "parameter_value({},array,({},value,{})).",
-                    identifier(id),
+                    "parameter_value(\"{}\",array,({},value,{})).",
+                    id,
                     pos,
                     bool_literal(*e)
                 )?;
@@ -470,10 +462,8 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             for (pos, int) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "parameter_value({},array,({},value,{})).",
-                    identifier(id),
-                    pos,
-                    int
+                    "parameter_value(\"{}\",array,({},value,{})).",
+                    id, pos, int
                 )?;
             }
         }
@@ -481,18 +471,16 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
             for (pos, float) in v.iter().enumerate() {
                 writeln!(
                     buf,
-                    "parameter_value({},array,({},value,\"{}\")).",
-                    identifier(id),
-                    pos,
-                    float
+                    "parameter_value(\"{}\",array,({},value,\"{}\")).",
+                    id, pos, float
                 )?;
             }
         }
         ParDeclItem::ArrayOfSet { ix: _, id, v } => {
             // writeln!(
             //     buf,
-            //     "variable_type({},{}).",
-            //     identifier(id),
+            //     "variable_type((\"{}\",{}).",
+            //     id,
             //     array_type(&index(ix), "set")
             // )?;
             for (pos, e) in v.iter().enumerate() {
@@ -500,10 +488,8 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
                 for element in set {
                     writeln!(
                         buf,
-                        "parameter_value({},array,({},{})).",
-                        identifier(id),
-                        pos,
-                        element
+                        "parameter_value(\"{}\",array,({},{})).",
+                        id, pos, element
                     )?;
                 }
             }
@@ -514,26 +500,16 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
 fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
     match item {
         VarDeclItem::Bool { id, expr, annos } => {
-            writeln!(buf, "variable_type({},bool).", identifier(id))?;
+            writeln!(buf, "variable_type(\"{}\",bool).", id)?;
             if let Some(expr) = expr {
-                writeln!(
-                    buf,
-                    "variable_value({},{}).",
-                    identifier(id),
-                    bool_expr(expr)
-                )?;
+                writeln!(buf, "variable_value(\"{}\",{}).", id, bool_expr(expr))?;
             }
             write_output_var(buf, id, annos)?;
         }
         VarDeclItem::Int { id, expr, annos } => {
-            writeln!(buf, "variable_type({},int).", identifier(id))?;
+            writeln!(buf, "variable_type(\"{}\",int).", id)?;
             if let Some(expr) = expr {
-                writeln!(
-                    buf,
-                    "variable_value({},{}).",
-                    identifier(id),
-                    int_expr(expr)
-                )?;
+                writeln!(buf, "variable_value(\"{}\",{}).", id, int_expr(expr))?;
             }
             write_output_var(buf, id, annos)?;
         }
@@ -544,19 +520,9 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             expr,
             annos,
         } => {
-            writeln!(
-                buf,
-                "variable_type({},{}).",
-                identifier(id),
-                int_in_range(lb, ub)
-            )?;
+            writeln!(buf, "variable_type(\"{}\",{}).", id, int_in_range(lb, ub))?;
             if let Some(expr) = expr {
-                writeln!(
-                    buf,
-                    "variable_value({},{}).",
-                    identifier(id),
-                    int_expr(expr)
-                )?;
+                writeln!(buf, "variable_value(\"{}\",{}).", id, int_expr(expr))?;
             }
             write_output_var(buf, id, annos)?;
         }
@@ -567,27 +533,17 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             annos,
         } => {
             for element in int_in_set(set) {
-                writeln!(buf, "variable_type({},{}).", identifier(id), element,)?;
+                writeln!(buf, "variable_type(\"{}\",{}).", id, element,)?;
             }
             if let Some(expr) = expr {
-                writeln!(
-                    buf,
-                    "variable_value({},{}).",
-                    identifier(id),
-                    int_expr(expr)
-                )?;
+                writeln!(buf, "variable_value(\"{}\",{}).", id, int_expr(expr))?;
             }
             write_output_var(buf, id, annos)?;
         }
         VarDeclItem::Float { id, expr, annos } => {
-            writeln!(buf, "variable_type({},float).", identifier(id))?;
+            writeln!(buf, "variable_type(\"{}\",float).", id)?;
             if let Some(expr) = expr {
-                writeln!(
-                    buf,
-                    "variable_value({},{}).",
-                    identifier(id),
-                    float_expr(expr)
-                )?;
+                writeln!(buf, "variable_value(\"{}\",{}).", id, float_expr(expr))?;
             }
             write_output_var(buf, id, annos)?;
         }
@@ -600,26 +556,21 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 bounded_float(*lb, *ub)
             )?;
             if let Some(expr) = expr {
-                writeln!(
-                    buf,
-                    "variable_value({},{}).",
-                    identifier(id),
-                    float_expr(expr)
-                )?;
+                writeln!(buf, "variable_value(\"{}\",{}).", id, float_expr(expr))?;
             }
             write_output_var(buf, id, annos)?;
         }
         VarDeclItem::SetOfInt { id, annos, expr } => {
-            writeln!(buf, "variable_type({},set_of_int).", identifier(id))?;
+            writeln!(buf, "variable_type(\"{}\",set_of_int).", id)?;
             if let Some(expr) = expr {
                 let set = dec_set_expr(expr);
                 for element in set {
-                    writeln!(buf, "variable_value({},{}).", identifier(id), element)?;
+                    writeln!(buf, "variable_value(\"{}\",{}).", id, element)?;
                 }
             }
             write_output_var(buf, id, annos)?;
@@ -633,14 +584,14 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 subset_of_int_range(lb, ub),
             )?;
             if let Some(expr) = expr {
                 let set = dec_set_expr(expr);
                 for element in set {
-                    writeln!(buf, "variable_value({},{}).", identifier(id), element)?;
+                    writeln!(buf, "variable_value(\"{}\",{}).", id, element)?;
                 }
             }
             write_output_var(buf, id, annos)?;
@@ -654,15 +605,14 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             for element in set {
                 writeln!(
                     buf,
-                    "variable_type({},set_of_int,set,(value,{})).",
-                    identifier(id),
-                    element,
+                    "variable_type(\"{}\",set_of_int,set,(value,{})).",
+                    id, element,
                 )?;
             }
             if let Some(expr) = expr {
                 let set = dec_set_expr(expr);
                 for element in set {
-                    writeln!(buf, "variable_value({},{}).", identifier(id), element)?;
+                    writeln!(buf, "variable_value(\"{}\",{}).", id, element)?;
                 }
             }
             write_output_var(buf, id, annos)?;
@@ -675,8 +625,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 array_type(&index(ix), "bool")
             )?;
             match array_expr {
@@ -684,20 +634,15 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     for (pos, e) in v.iter().enumerate() {
                         writeln!(
                             buf,
-                            "variable_value({},array,({},{})).",
-                            identifier(id),
+                            "variable_value(\"{}\",array,({},{})).",
+                            id,
                             pos,
                             bool_expr(e)
                         )?;
                     }
                 }
                 Some(ArrayOfBoolExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -711,8 +656,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 array_type(&index(ix), "int"),
             )?;
             match array_expr {
@@ -720,20 +665,15 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     for (pos, e) in v.iter().enumerate() {
                         writeln!(
                             buf,
-                            "variable_value({},array,({},{})).",
-                            identifier(id),
+                            "variable_value(\"{}\",array,({},{})).",
+                            id,
                             pos,
                             int_expr(e)
                         )?;
                     }
                 }
                 Some(ArrayOfIntExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -749,8 +689,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 array_type(&index(ix), &int_in_range(lb, ub)),
             )?;
             match array_expr {
@@ -758,20 +698,15 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     for (pos, e) in v.iter().enumerate() {
                         writeln!(
                             buf,
-                            "variable_value({},array,({},{})).",
-                            identifier(id),
+                            "variable_value(\"{}\",array,({},{})).",
+                            id,
                             pos,
                             int_expr(e)
                         )?;
                     }
                 }
                 Some(ArrayOfIntExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -787,8 +722,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             for element in int_in_set(set) {
                 writeln!(
                     buf,
-                    "variable_type({},{}).",
-                    identifier(id),
+                    "variable_type(\"{}\",{}).",
+                    id,
                     array_type(&index(ix), &element)
                 )?;
             }
@@ -797,20 +732,15 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     for (pos, e) in v.iter().enumerate() {
                         writeln!(
                             buf,
-                            "variable_value({},array,({},{})).",
-                            identifier(id),
+                            "variable_value(\"{}\",array,({},{})).",
+                            id,
                             pos,
                             int_expr(e)
                         )?;
                     }
                 }
                 Some(ArrayOfIntExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -824,8 +754,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 array_type(&index(ix), "float"),
             )?;
             match array_expr {
@@ -833,20 +763,15 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     for (pos, e) in v.iter().enumerate() {
                         writeln!(
                             buf,
-                            "variable_value({},array,({},{})).",
-                            identifier(id),
+                            "variable_value(\"{}\",array,({},{})).",
+                            id,
                             pos,
                             float_expr(e)
                         )?;
                     }
                 }
                 Some(ArrayOfFloatExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -862,8 +787,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 array_type(&index(ix), &bounded_float(*lb, *ub)),
             )?;
             match array_expr {
@@ -871,20 +796,15 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                     for (pos, e) in v.iter().enumerate() {
                         writeln!(
                             buf,
-                            "variable_value({},array,({},{})).",
-                            identifier(id),
+                            "variable_value(\"{}\",array,({},{})).",
+                            id,
                             pos,
                             float_expr(e)
                         )?;
                     }
                 }
                 Some(ArrayOfFloatExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -898,8 +818,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 array_type(&index(ix), "set"),
             )?;
             match array_expr {
@@ -909,21 +829,14 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                         for element in set {
                             writeln!(
                                 buf,
-                                "variable_value({},array,({},{})).",
-                                identifier(id),
-                                pos,
-                                element
+                                "variable_value(\"{}\",array,({},{})).",
+                                id, pos, element
                             )?;
                         }
                     }
                 }
                 Some(ArrayOfSetExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -939,8 +852,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
         } => {
             writeln!(
                 buf,
-                "variable_type({},{}).",
-                identifier(id),
+                "variable_type(\"{}\",{}).",
+                id,
                 array_type(&index(ix), &subset_of_int_range(lb, ub))
             )?;
             match array_expr {
@@ -950,21 +863,14 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                         for element in set {
                             writeln!(
                                 buf,
-                                "variable_value({},array,({},{})).",
-                                identifier(id),
-                                pos,
-                                element
+                                "variable_value(\"{}\",array,({},{})).",
+                                id, pos, element
                             )?;
                         }
                     }
                 }
                 Some(ArrayOfSetExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -980,8 +886,8 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
             for element in set {
                 writeln!(
                     buf,
-                    "variable_type({},{}).",
-                    identifier(id),
+                    "variable_type(\"{}\",{}).",
+                    id,
                     array_type(&index(ix), &format!("set_of_int,set,(value,{})", element)),
                 )?;
             }
@@ -989,23 +895,12 @@ fn write_var_decl_item(mut buf: impl Write, item: &VarDeclItem) -> Result<()> {
                 Some(ArrayOfSetExpr::Array(v)) => {
                     for (pos, se) in v.iter().enumerate() {
                         for e in dec_set_expr(se) {
-                            writeln!(
-                                buf,
-                                "variable_value({},array,({},{})).",
-                                identifier(id),
-                                pos,
-                                e
-                            )?;
+                            writeln!(buf, "variable_value(\"{}\",array,({},{})).", id, pos, e)?;
                         }
                     }
                 }
                 Some(ArrayOfSetExpr::VarParIdentifier(id2)) => {
-                    writeln!(
-                        buf,
-                        "variable_value({},value,{}).",
-                        identifier(id),
-                        identifier(id2)
-                    )?;
+                    writeln!(buf, "variable_value(\"{}\",value,\"{}\").", id, id2)?;
                 }
                 None => {}
             }
@@ -1057,18 +952,12 @@ fn subset_of_int_set(set: &[i128]) -> Vec<String> {
     ret
 }
 fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result<()> {
-    writeln!(buf, "constraint(c{},{}).", i, identifier(&c.id))?;
+    writeln!(buf, "constraint(c{},\"{}\").", i, c.id)?;
     for (cpos, ce) in c.exprs.iter().enumerate() {
         match ce {
             Expr::VarParIdentifier(id) => {
                 // writeln!(buf, "constraint_type_at(c{},{},var_par).", i, cpos)?;
-                writeln!(
-                    buf,
-                    "constraint_value(c{},{},var,{}).",
-                    i,
-                    cpos,
-                    identifier(id)
-                )?;
+                writeln!(buf, "constraint_value(c{},{},var,\"{}\").", i, cpos, id)?;
             }
             Expr::Bool(e) => {
                 // writeln!(buf, "constraint_type_at(c{},{},bool).", i, cpos)?;
@@ -1211,9 +1100,6 @@ fn opt_type(opt_type: &OptimizationType) -> String {
 fn index(IndexSet(i): &IndexSet) -> String {
     i.to_string()
 }
-fn identifier(id: &str) -> String {
-    format!("\"{}\"", id)
-}
 fn pred_index(is: &PredIndexSet) -> String {
     match is {
         PredIndexSet::IndexSet(i) => i.to_string(),
@@ -1223,7 +1109,7 @@ fn pred_index(is: &PredIndexSet) -> String {
 fn bool_expr(e: &BoolExpr) -> String {
     match e {
         BoolExpr::Bool(b) => format!("value,{}", bool_literal(*b)),
-        BoolExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
+        BoolExpr::VarParIdentifier(id) => format!("var,\"{}\"", id),
     }
 }
 fn bool_literal(b: bool) -> String {
@@ -1236,19 +1122,19 @@ fn bool_literal(b: bool) -> String {
 fn int_expr(e: &IntExpr) -> String {
     match e {
         IntExpr::Int(int) => format!("value,{}", int),
-        IntExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
+        IntExpr::VarParIdentifier(id) => format!("var,\"{}\"", id),
     }
 }
 fn float_expr(e: &FloatExpr) -> String {
     match e {
         FloatExpr::Float(float) => format!("value,\"{}\"", float),
-        FloatExpr::VarParIdentifier(id) => format!("var,{}", identifier(id)),
+        FloatExpr::VarParIdentifier(id) => format!("var,\"{}\"", id),
     }
 }
 fn dec_set_expr(e: &SetExpr) -> Vec<String> {
     match e {
         SetExpr::Set(sl) => dec_set_literal_expr(sl),
-        SetExpr::VarParIdentifier(id) => vec![format!("var,{}", identifier(id))],
+        SetExpr::VarParIdentifier(id) => vec![format!("var,\"{}\"", id)],
     }
 }
 fn dec_set_literal_expr(l: &SetLiteralExpr) -> Vec<String> {
@@ -1312,7 +1198,7 @@ fn dec_set_literal(l: &SetLiteral) -> Vec<String> {
 fn write_output_var(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Result<()> {
     for a in annos {
         if a.id == "output_var" {
-            writeln!(buf, "output_var({}).", identifier(id))?;
+            writeln!(buf, "output_var(\"{}\").", id)?;
             break;
         }
     }
@@ -1329,14 +1215,7 @@ fn write_output_array(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Re
                                 IntExpr::Int(lb),
                                 IntExpr::Int(ub),
                             )) => {
-                                writeln!(
-                                    buf,
-                                    "output_array({},{},({},{})).",
-                                    identifier(id),
-                                    pos,
-                                    lb,
-                                    ub
-                                )?;
+                                writeln!(buf, "output_array(\"{}\",{},({},{})).", id, pos, lb, ub)?;
                             }
                             x => panic!("unexpected set expr: {:?}", x),
                         }
