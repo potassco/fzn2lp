@@ -1,7 +1,7 @@
 
 # fzn2lp [![Build Status](https://github.com/potassco/fzn2lp/workflows/CI%20Test/badge.svg)](https://github.com/potassco/fzn2lp)
 
-A converter from FlatZinc into an ASP fact format .
+A converter from FlatZinc into an ASP fact format.
 
 ## Usage
 
