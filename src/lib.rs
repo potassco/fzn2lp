@@ -460,7 +460,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
                 writeln!(buf, "parameter_value({},{}).", identifier(id), element)?;
             }
         }
-        ParDeclItem::ArrayOfBool { ix, id, v } => {
+        ParDeclItem::ArrayOfBool { ix: _, id, v } => {
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
@@ -471,7 +471,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
                 )?;
             }
         }
-        ParDeclItem::ArrayOfInt { ix, id, v } => {
+        ParDeclItem::ArrayOfInt { ix: _, id, v } => {
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
@@ -482,7 +482,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
                 )?;
             }
         }
-        ParDeclItem::ArrayOfFloat { ix, id, v } => {
+        ParDeclItem::ArrayOfFloat { ix: _, id, v } => {
             for (pos, e) in v.iter().enumerate() {
                 writeln!(
                     buf,
@@ -493,7 +493,7 @@ fn write_par_decl_item(mut buf: impl Write, item: &ParDeclItem) -> Result<()> {
                 )?;
             }
         }
-        ParDeclItem::ArrayOfSet { ix, id, v } => {
+        ParDeclItem::ArrayOfSet { ix: _, id, v } => {
             // writeln!(
             //     buf,
             //     "variable_type({},{}).",
