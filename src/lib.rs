@@ -335,19 +335,19 @@ pub fn write_fz_stmt(
     constraint_counter: &mut usize,
     level: &mut i32,
 ) -> Result<()> {
-    match fz_statement::<VerboseError<&str>>(&input) {
+    match statement::<VerboseError<&str>>(&input) {
         Ok((_rest, stmt)) => {
             match stmt {
-                FzStmt::Comment(s) => {
+                Stmt::Comment(s) => {
                     writeln!(out, "%{}", s)?;
                 }
-                FzStmt::Predicate(pred) => {
+                Stmt::Predicate(pred) => {
                     if *level > 1 {
                         warn!("Statements in wrong order.");
                     }
                     write_predicate(out, &pred)?;
                 }
-                FzStmt::Parameter(p) => {
+                Stmt::Parameter(p) => {
                     if *level > 2 {
                         warn!("Statements in wrong order.");
                     } else {
@@ -355,7 +355,7 @@ pub fn write_fz_stmt(
                     }
                     write_par_decl_item(out, &p)?;
                 }
-                FzStmt::Variable(d) => {
+                Stmt::Variable(d) => {
                     if *level > 3 {
                         warn!("Statements in wrong order.");
                     } else {
@@ -363,7 +363,7 @@ pub fn write_fz_stmt(
                     }
                     write_var_decl_item(out, &d)?;
                 }
-                FzStmt::Constraint(c) => {
+                Stmt::Constraint(c) => {
                     if *level > 4 {
                         warn!("Statements in wrong order.");
                     } else {
@@ -372,7 +372,7 @@ pub fn write_fz_stmt(
                     *constraint_counter += 1;
                     write_constraint(out, &c, *constraint_counter)?;
                 }
-                FzStmt::SolveItem(i) => {
+                Stmt::SolveItem(i) => {
                     if *level > 4 {
                         return Err(FlatZincError::MultipleSolveItems.into());
                     }
@@ -383,8 +383,8 @@ pub fn write_fz_stmt(
             Ok(())
         }
         Err(Err::Error(e)) | Err(Err::Failure(e)) => {
-            let bla = convert_error(&input, e);
-            Err(FlatZincError::ParseError { msg: bla }.into())
+            let msg = convert_error(input, e);
+            Err(FlatZincError::ParseError { msg }.into())
         }
         Err(e) => Err(FlatZincError::ParseError {
             msg: format!("{}", e),

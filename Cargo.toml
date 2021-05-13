@@ -1,9 +1,9 @@
 [package]
 name = "fzn2lp"
-version = "0.1.3"
+version = "0.1.4-pre"
 publish = false
 authors = ["Sven Thiele <sthiele78@gmail.com>"]
-description = "A FlatZinc to AnsProlog converter"
+description = "A converter from FlatZinc into an ASP fact format "
 readme = "README.md"
 repository = "https://github.com/potassco/fzn2lp"
 license = "MIT"
