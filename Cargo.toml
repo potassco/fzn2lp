@@ -11,7 +11,7 @@ edition = "2018"
 exclude = ["/.github"]
 
 [dependencies]
-flatzinc = "0.3"
+flatzinc = { git = "https://github.com/potassco/flatzinc", branch = "st/empty-array" }
 structopt = "0.3"
 anyhow = "1.0"
 thiserror = "1.0"
