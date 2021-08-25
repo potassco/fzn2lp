@@ -49,12 +49,14 @@ jobs:
       run: |
         cd flatzingo
         ./install.sh
+        cd ..
 
     - name: Install python stuff
       run: |
         sudo apt-get install -y python3-pip
         pip3 install pytest
         pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post5
+
     - name: Test flatzingo
       run: python3 -m pytest tests
 
@@ -64,13 +66,13 @@ jobs:
         repository: 'MiniZinc/libminizinc'
         ref: '2.5.5'
         path: 'libminizinc'
-        
+  
     - name: Install minizinc python library and requirements
       run: pip3 install -r libminizinc/tests/requirements.txt
-      
+
     - name: Prepare minizinc testcases
       run: sed -i 's/"gecode", "cbc", "chuffed"/"flatzingo"/' libminizinc/tests/minizinc_testing/spec.py
-      
+
     - name: Run minizinc tests
       run: |
         cd libminizinc/tests
