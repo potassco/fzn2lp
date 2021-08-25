@@ -45,8 +45,10 @@ jobs:
         ref: 'minizinc_challenge_2021'
         path: 'flatzingo'
         
-    - name: install flatzingo
-      run: ./flatzingo/install.sh
+    - name: Install flatzingo
+      run: |
+        cd flatzingo
+        ./install.sh
 
     - name: Install python stuff
       run: |
