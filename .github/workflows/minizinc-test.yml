@@ -58,7 +58,7 @@ jobs:
         pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post5
 
     - name: Test flatzingo
-      run: python3 -m pytest tests
+      run: python3 -m pytest ./flatzingo/tests
 
     - name: Install minizinc testcases
       uses: actions/checkout@v2
