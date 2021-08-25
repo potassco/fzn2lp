@@ -47,8 +47,10 @@ jobs:
         
     - name: Install flatzingo
       run: |
-        cd flatzingo
-        ./install.sh
+        mkdir -p ~/.minizinc/solvers
+        mkdir -p ~/.minizinc/share
+        cp ./flatzingo/configuration/flatzingo.msc ~/.minizinc/solvers/
+        cp -r ./flatzingo/share/minizinc/flatzingo ~/.minizinc/share/
 
     - name: Install python stuff
       run: |
