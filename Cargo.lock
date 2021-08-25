@@ -76,8 +76,9 @@ dependencies = [
 
 [[package]]
 name = "flatzinc"
-version = "0.3.17"
-source = "git+https://github.com/potassco/flatzinc?branch=st/empty-array#08dfddbf0b8002f423336132774ae93a7af2ba67"
+version = "0.3.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83d12e0458681bede39f75a10616b9655099d65032f395f01d6aaf3f63cb98af"
 dependencies = [
  "nom",
 ]
