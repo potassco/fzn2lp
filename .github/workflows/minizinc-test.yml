@@ -33,7 +33,7 @@ jobs:
     - name: Install fzn2lp
       run: |
         cargo build --release
-        echo "./target/release" >> $GITHUB_PATH
+        echo "$(pwd)/target/release" >> $GITHUB_PATH
         
     - name: Test fzn2lp
       run: fzn2lp --version
@@ -49,7 +49,6 @@ jobs:
       run: |
         cd flatzingo
         ./install.sh
-        cd ..
 
     - name: Install python stuff
       run: |
