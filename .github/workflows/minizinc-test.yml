@@ -51,6 +51,7 @@ jobs:
         mkdir -p ~/.minizinc/share
         cp ./flatzingo/configuration/flatzingo.msc ~/.minizinc/solvers/
         cp -r ./flatzingo/share/minizinc/flatzingo ~/.minizinc/share/
+        echo "$(pwd)/flatzingo" >> $GITHUB_PATH
 
     - name: Install python stuff
       run: |
