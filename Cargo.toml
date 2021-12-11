@@ -7,7 +7,7 @@ description = "A converter from FlatZinc into an ASP fact format "
 readme = "README.md"
 repository = "https://github.com/potassco/fzn2lp"
 license = "MIT"
-edition = "2018"
+edition = "2021"
 exclude = ["/.github"]
 
 [dependencies]
