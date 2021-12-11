@@ -335,7 +335,7 @@ pub fn write_fz_stmt(
     constraint_counter: &mut usize,
     level: &mut i32,
 ) -> Result<()> {
-    match statement::<VerboseError<&str>>(&input) {
+    match statement::<VerboseError<&str>>(input) {
         Ok((_rest, stmt)) => {
             match stmt {
                 Stmt::Comment(s) => {
@@ -398,7 +398,7 @@ fn write_predicate(mut buf: impl Write, predicate: &PredicateItem) -> Result<()>
     for (pos, p) in predicate.parameters.iter().enumerate() {
         match p {
             (PredParType::Basic(par_type), id) => {
-                for element in basic_pred_par_type(&par_type) {
+                for element in basic_pred_par_type(par_type) {
                     writeln!(
                         buf,
                         "predicate_parameter(\"{}\",{},\"{}\",{}).",
@@ -407,14 +407,14 @@ fn write_predicate(mut buf: impl Write, predicate: &PredicateItem) -> Result<()>
                 }
             }
             (PredParType::Array { ix, par_type }, id) => {
-                for element in basic_pred_par_type(&par_type) {
+                for element in basic_pred_par_type(par_type) {
                     writeln!(
                         buf,
                         "predicate_parameter(\"{}\",{},\"{}\",{}).",
                         predicate.id,
                         pos,
                         id,
-                        array_type(&pred_index(&ix), &element)
+                        array_type(&pred_index(ix), &element)
                     )?;
                 }
             }
@@ -997,7 +997,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                         i,
                         cpos,
                         apos,
-                        bool_expr(&ae)
+                        bool_expr(ae)
                     )?;
                 }
             }
@@ -1010,7 +1010,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                         i,
                         cpos,
                         apos,
-                        int_expr(&ae)
+                        int_expr(ae)
                     )?;
                 }
             }
@@ -1023,7 +1023,7 @@ fn write_constraint(mut buf: impl Write, c: &ConstraintItem, i: usize) -> Result
                         i,
                         cpos,
                         apos,
-                        float_expr(&ae)
+                        float_expr(ae)
                     )?;
                 }
             }
@@ -1050,13 +1050,13 @@ fn write_solve_item(mut buf: impl Write, i: &SolveItem) -> Result<()> {
             writeln!(buf, "solve(satisfy).")?;
         }
         Goal::OptimizeBool(ot, e) => {
-            writeln!(buf, "solve({},{}).", opt_type(ot), bool_expr(&e))?;
+            writeln!(buf, "solve({},{}).", opt_type(ot), bool_expr(e))?;
         }
         Goal::OptimizeInt(ot, e) => {
-            writeln!(buf, "solve({},{}).", opt_type(ot), int_expr(&e))?;
+            writeln!(buf, "solve({},{}).", opt_type(ot), int_expr(e))?;
         }
         Goal::OptimizeFloat(ot, e) => {
-            writeln!(buf, "solve({},{}).", opt_type(ot), float_expr(&e))?;
+            writeln!(buf, "solve({},{}).", opt_type(ot), float_expr(e))?;
         }
         Goal::OptimizeSet(ot, e) => {
             let set = dec_set_expr(e);
