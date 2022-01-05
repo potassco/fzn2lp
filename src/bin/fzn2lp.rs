@@ -1,4 +1,5 @@
 use anyhow::Result;
+use clap::Parser;
 use fzn2lp::write_fz_stmt;
 use fzn2lp::FlatZincError;
 use log::error;
@@ -7,14 +8,13 @@ use std::{
     io::{self, prelude::*},
     path::PathBuf,
 };
-use structopt::StructOpt;
 
-/// Convert FlatZinc to AnsProlog facts
-#[derive(StructOpt, Debug)]
-#[structopt(name = "fzn2lp")]
+/// Convert FlatZinc to ASP facts
+#[derive(Parser, Debug)]
+#[clap(name = "fzn2lp")]
 struct Opt {
     /// Input file in flatzinc format
-    #[structopt(name = "FILE", parse(from_os_str))]
+    #[clap(name = "FILE", parse(from_os_str))]
     file: Option<PathBuf>,
 }
 
@@ -58,7 +58,7 @@ fn main() {
     }
 }
 fn run() -> Result<()> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
 
     let stdin = io::stdin();
     let input = match opt.file {
