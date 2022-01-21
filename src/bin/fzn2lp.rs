@@ -74,7 +74,7 @@ fn run() -> Result<()> {
 
     let mut out = std::io::stdout();
     let mut level = 1;
-    let mut constraint_counter = 1;
+    let mut constraint_counter = 0;
     for line in input.lines() {
         write_fz_stmt(&mut out, &line?, &mut constraint_counter, &mut level)?;
     }
