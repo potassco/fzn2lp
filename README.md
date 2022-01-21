@@ -15,14 +15,15 @@ Binaries for 64bit linux and macOS can be found on the [release page](https://gi
 
 ## Compile yourself
 
-Clone the git repository:
+Clone the git repository and build:
 
-```shell
+```bash
 git clone https://github.com/potassco/fzn2lp.git
+cd fzn2lp
 cargo build --release
 ```
 
-The executables can be found under `./target/release/`
+The executables can then be found under `./target/release/`
 
 ## Flatzinc to ASP translation
 
@@ -30,7 +31,7 @@ The executables can be found under `./target/release/`
 
 Predicate declarations are represented by facts of form:
 
-```asp
+```prolog
 predicate(PredicateName).
 predicate_parameter(PredicateName, Pos, ParameterName, ParameterType).
 ```
@@ -49,7 +50,7 @@ predicate my_pred(int:a, {1,2,3}:a2, 1..11:a3, float:b, bool:c,
 
 is represented as:
 
-```asp
+```prolog
 predicate("my_pred").
 predicate_parameter("my_pred",0,"a",int).
 predicate_parameter("my_pred",1,"a2",int,set,(value,1)).
@@ -75,7 +76,7 @@ predicate_parameter("my_pred",11,"j",array(int,set_of_int)).
 
 Basic parameters are declared by facts of form:
 
-```asp
+```prolog
 parameter_value(ParameterName, ParameterType, ParameterValue).
 ```
 
@@ -93,13 +94,12 @@ bool : c = true;
 array [1..2] of int : d = [42,23];
 array [1..2] of float : e = [42.1,23.0];
 set of int: f = 23..42;
-set of float : g = {42.1,23.0};
 array [1..3] of set of int : h = [{42,17},1..5,{}];
 ```
 
 are represented as:
 
-```asp
+```prolog
 parameter_value("a",value,1).
 parameter_value("b",value,"1.1").
 parameter_value("c",value,true).
@@ -108,8 +108,6 @@ parameter_value("d",array,(1,value,23)).
 parameter_value("e",array,(0,value,"42.1")).
 parameter_value("e",array,(1,value,"23")).
 parameter_value("f",range,(value,23,value,42)).
-parameter_value("g",set,(value,"23"))).
-parameter_value("g",set,(value,"42.1"))).
 parameter_value("h",array,(0,set,(value,42))).
 parameter_value("h",array,(0,set,(value,17))).
 parameter_value("h",array,(1,range,(value,1,value,5))).
@@ -120,9 +118,9 @@ parameter_value("h",array,(2,empty_set)).
 
 Variable declarations are presented by facts of form:
 
-```asp
+```prolog
 variable_type(VariableName, VariableType).
-variable_value(VariableName, VariableType).
+variable_value(VariableName, Type, Value).
 ```
 
 Variable types can be either `bool`, `int`, `float`, `set_of_int`, `array(L,int)`,`array(L,set_of_int)`.
@@ -146,7 +144,7 @@ array [1..3] of var set of 17..42: h = [{42,17},23..X,{}];
 
 are represented as:
 
-```asp
+```prolog
 variable_type("a1",int).
 variable_value("a1",value,1).
 
@@ -194,9 +192,9 @@ variable_value("h",array,(2,empty_set)).
 
 Constraints are presented by facts of form:
 
-```asp
+```prolog
 constraint(ConstraintId, ConstraintName).
-constraint_value(ConstraintId, Pos, Expr).
+constraint_value(ConstraintId, Pos, Type, Expr).
 ```
 
 The expressions in constraints can contain variables `var` or values `value`. Complex expressions are `array`, `set` and `range`.
@@ -209,7 +207,7 @@ constraint my_constraint(42, 42.1, true, a, [42,17,X], {X,34}, 37..48, [{42,17},
 
 is represented as:
 
-```asp
+```prolog
 constraint(c1,"my_constraint").
 constraint_value(c1,0,value,42).
 constraint_value(c1,1,value,"42.1").
@@ -232,10 +230,10 @@ constraint_value(c1,7,array,(2,set,(var,"Y"))).
 
 The solve statement is represented by one fact of the following form:
 
-```asp
+```prolog
 solve(satisfy).
-solve(maximize, Expr).
-solve(minimize, Expr).
+solve(maximize, Type, Expr).
+solve(minimize, Type, Expr).
 ```
 
 For example:
@@ -246,6 +244,6 @@ solve minimize X_24;
 
 is represented as:
 
-```asp
-solve(minimize, "X_24").
+```prolog
+solve(minimize,var,"X_24").
 ```
