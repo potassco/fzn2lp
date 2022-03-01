@@ -23,9 +23,9 @@ jobs:
 
       - name: Install MiniZinc
         run: |
-          wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.6.0/MiniZincIDE-2.6.0-bundle-linux-x86_64.tgz
-          tar xzf MiniZincIDE-2.6.0-bundle-linux-x86_64.tgz
-          echo "$(pwd)/MiniZincIDE-2.6.0-bundle-linux-x86_64/bin" >> $GITHUB_PATH
+          wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.5.5/MiniZincIDE-2.5.5-bundle-linux-x86_64.tgz
+          tar xzf MiniZincIDE-2.5.5-bundle-linux-x86_64.tgz
+          echo "$(pwd)/MiniZincIDE-2.5.5-bundle-linux-x86_64/bin" >> $GITHUB_PATH
       - name: Test minizinc
         run: minizinc --version
 
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: "MiniZinc/libminizinc"
-          ref: "2.6.0"
+          ref: "2.5.5"
           path: "libminizinc"
 
       - name: Install minizinc python library and requirements
@@ -79,4 +79,4 @@ jobs:
       - name: Run MiniZinc tests
         run: |
           cd libminizinc/tests
-          pytest -k "not test_var_set_element and not bug269 and not bug347" --driver=../../MiniZincIDE-2.6.0-bundle-linux-x86_64/bin
+          pytest -k "not test_var_set_element and not bug269 and not bug347" --driver=../../MiniZincIDE-2.5.5-bundle-linux-x86_64/bin
