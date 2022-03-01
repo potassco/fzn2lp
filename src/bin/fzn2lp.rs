@@ -12,6 +12,7 @@ use std::{
 /// Convert FlatZinc to ASP facts
 #[derive(Parser, Debug)]
 #[clap(name = "fzn2lp")]
+#[clap(version, author)]
 struct Opt {
     /// Input file in flatzinc format
     #[clap(name = "FILE", parse(from_os_str))]
