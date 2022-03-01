@@ -21,7 +21,7 @@ jobs:
       - name: Test clingcon
         run: clingcon --version
 
-      - name: Install minizinc
+      - name: Install MiniZinc
         run: |
           wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.6.0/MiniZincIDE-2.6.0-bundle-linux-x86_64.tgz
           tar xzf MiniZincIDE-2.6.0-bundle-linux-x86_64.tgz
@@ -56,14 +56,14 @@ jobs:
         run: |
           sudo apt-get install -y python3-pip
           pip3 install pytest
-          pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post3
+          pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post4
 
       # - name: Test flatzingo
       #   run: |
       #     cd flatzingo
       #     python3 -m pytest ./tests
 
-      - name: Install minizinc testcases
+      - name: Install MiniZinc testcases
         uses: actions/checkout@v2
         with:
           repository: "MiniZinc/libminizinc"
@@ -73,10 +73,10 @@ jobs:
       - name: Install minizinc python library and requirements
         run: pip3 install -r libminizinc/tests/requirements.txt
 
-      - name: Prepare minizinc testcases
+      - name: Prepare MiniZinc testcases
         run: sed -i 's/"gecode", "cbc", "chuffed"/"flatzingo"/' libminizinc/tests/minizinc_testing/spec.py
 
-      - name: Run minizinc tests
+      - name: Run MiniZinc tests
         run: |
           cd libminizinc/tests
           pytest -k "not test_var_set_element and not bug269 and not bug347" --driver=../../MiniZincIDE-2.6.0-bundle-linux-x86_64/bin
