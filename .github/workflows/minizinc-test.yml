@@ -58,16 +58,16 @@ jobs:
           pip3 install pytest
           pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post3
 
-      - name: Test flatzingo
-        run: |
-          cd flatzingo
-          python3 -m pytest ./tests
+      # - name: Test flatzingo
+      #   run: |
+      #     cd flatzingo
+      #     python3 -m pytest ./tests
 
       - name: Install minizinc testcases
         uses: actions/checkout@v2
         with:
           repository: "MiniZinc/libminizinc"
-          ref: "2.5.5"
+          ref: "2.6.0"
           path: "libminizinc"
 
       - name: Install minizinc python library and requirements
@@ -79,4 +79,4 @@ jobs:
       - name: Run minizinc tests
         run: |
           cd libminizinc/tests
-          pytest -k "not test_var_set_element and not bug269 and not bug347" --driver=../../MiniZincIDE-2.5.5-bundle-linux-x86_64/bin
+          pytest -k "not test_var_set_element and not bug269 and not bug347" --driver=../../MiniZincIDE-2.6.0-bundle-linux-x86_64/bin
