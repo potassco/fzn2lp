@@ -58,10 +58,10 @@ jobs:
           pip3 install pytest
           pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post4
 
-      # - name: Test flatzingo
-      #   run: |
-      #     cd flatzingo
-      #     python3 -m pytest ./tests
+      - name: Test flatzingo
+        run: |
+          cd flatzingo
+          python3 -m pytest ./tests
 
       - name: Install MiniZinc testcases
         uses: actions/checkout@v2
