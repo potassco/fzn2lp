@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: "potassco/flatzingo"
-          ref: "minizinc_challenge_2021"
+          ref: "master"
           path: "flatzingo"
 
       - name: Install flatzingo
