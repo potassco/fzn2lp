@@ -18,6 +18,7 @@ jobs:
           sudo add-apt-repository ppa:potassco/wip
           sudo apt-get update
           sudo apt-get install clingcon=${{ matrix.clingconversion }}-focal5
+
       - name: Test clingcon
         run: clingcon --version
 
@@ -26,6 +27,7 @@ jobs:
           wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.6.1/MiniZincIDE-2.6.1-bundle-linux-x86_64.tgz
           tar xzf MiniZincIDE-2.6.1-bundle-linux-x86_64.tgz
           echo "$(pwd)/MiniZincIDE-2.6.1-bundle-linux-x86_64/bin" >> $GITHUB_PATH
+
       - name: Test minizinc
         run: minizinc --version
 
@@ -70,7 +72,14 @@ jobs:
           ref: "2.6.1"
           path: "libminizinc"
 
-      - name: Install minizinc python library and requirements
+      - name: Patch libminizinc 2.6.1
+        run: |
+          cd libminizinc/tests/
+          sed -i '$d' requirements.txt
+          echo 'git+https://github.com/MiniZinc/minizinc-python.git@develop#egg=minizinc' >> requirements.txt
+          cat requirements.txt
+
+      - name: Install MiniZinc python library and requirements
         run: pip3 install -r libminizinc/tests/requirements.txt
 
       - name: Prepare MiniZinc testcases
