@@ -28,7 +28,7 @@ jobs:
           tar xzf MiniZincIDE-2.6.1-bundle-linux-x86_64.tgz
           echo "$(pwd)/MiniZincIDE-2.6.1-bundle-linux-x86_64/bin" >> $GITHUB_PATH
 
-      - name: Test minizinc
+      - name: Test MiniZinc
         run: minizinc --version
 
       - name: Install fzn2lp
@@ -65,7 +65,7 @@ jobs:
           cd flatzingo
           python3 -m pytest ./tests
 
-      - name: Install MiniZinc testcases
+      - name: Checkout libminizinc
         uses: actions/checkout@v2
         with:
           repository: "MiniZinc/libminizinc"
@@ -79,13 +79,13 @@ jobs:
           echo 'git+https://github.com/MiniZinc/minizinc-python.git@develop#egg=minizinc' >> requirements.txt
           cat requirements.txt
 
-      - name: Install MiniZinc python library and requirements
+      - name: Install libminizinc test requirements
         run: pip3 install -r libminizinc/tests/requirements.txt
 
-      - name: Prepare MiniZinc testcases
+      - name: Prepare libminizinc testcases
         run: sed -i 's/"gecode", "cbc", "chuffed"/"flatzingo"/' libminizinc/tests/minizinc_testing/spec.py
 
-      - name: Run MiniZinc tests
+      - name: Run libminizinc tests
         run: |
           cd libminizinc/tests
           pytest -k "not test_output_checker and not test_var_set_element and not bug269 and not bug347 and not test-search1" --driver=../../MiniZincIDE-2.6.1-bundle-linux-x86_64/bin
