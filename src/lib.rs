@@ -984,6 +984,7 @@ fn write_solve_item(mut buf: impl Write, i: &SolveItem) -> Result<()> {
             }
         }
     }
+    write_search_directive(buf, &i.annotations)?;
     Ok(())
 }
 fn basic_par_type(t: &BasicParType) -> String {
@@ -1143,6 +1144,47 @@ fn write_output_array(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Re
                 _ => panic!("expected an array of index sets!"),
             }
             break;
+        }
+    }
+    Ok(())
+}
+
+fn write_search_directive(mut buf: impl Write, annos: &[Annotation]) -> Result<()> {
+    for a in annos {
+        match a.id.as_str() {
+            "int_search" => {
+                eprintln!("found int_search search annotation!")
+                // match a.expressions.get(0) {
+                //     Some(AnnExpr::Expr(Expr::ArrayOfSet(v))) => {
+                //         for (pos, e) in v.iter().enumerate() {
+                //             match e {
+                //                 SetExpr::Set(SetLiteralExpr::IntInRange(
+                //                     IntExpr::Int(lb),
+                //                     IntExpr::Int(ub),
+                //                 )) => {
+                //                     writeln!(buf, "output_array(\"{}\",{},({},{})).", id, pos, lb, ub)?;
+                //                 }
+                //                 x => panic!("unexpected set expr: {:?}", x),
+                //             }
+                //         }
+                //     }
+                //     _ => panic!("expected an array of index sets!"),
+                // }
+                // break;
+            }
+            "bool_search" => {
+                eprintln!("found bool_search search annotation!")
+            }
+            "set_search" => {
+                eprintln!("found set_search search annotation!")
+            }
+            "float_search" => {
+                eprintln!("found float_search search annotation!")
+            }
+            "seq_search" => {
+                eprintln!("found seq_search search annotation!")
+            }
+            &_ => {}
         }
     }
     Ok(())
