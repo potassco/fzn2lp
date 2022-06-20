@@ -48,11 +48,7 @@ impl<'a> io::BufRead for Reader<'a> {
     }
 }
 fn main() {
-    stderrlog::new()
-        .module(module_path!())
-        .verbosity(2)
-        .init()
-        .unwrap();
+    env_logger::builder().format_timestamp(None).init();
     if let Err(err) = run() {
         error!("{:?}", err);
         std::process::exit(1);
