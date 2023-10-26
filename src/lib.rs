@@ -331,12 +331,12 @@ fn test_constraints() {
 }
 pub fn write_fz_stmt(
     mut out: impl Write,
-    input: &str,
+    mut input: &str,
     constraint_counter: &mut usize,
     level: &mut i32,
 ) -> Result<()> {
-    match statement::<VerboseError<&str>>(input) {
-        Ok((_rest, stmt)) => {
+    match statement::<ContextError<&str>>(&mut input) {
+        Ok(stmt) => {
             match stmt {
                 Stmt::Comment(s) => {
                     writeln!(out, "%{s}")?;
@@ -382,10 +382,10 @@ pub fn write_fz_stmt(
             }
             Ok(())
         }
-        Err(Err::Error(e)) | Err(Err::Failure(e)) => {
-            let msg = convert_error(input, e);
-            Err(FlatZincError::ParseError { msg }.into())
-        }
+        // Err(Err::Error(e)) | Err(Err::Failure(e)) => {
+        //     let msg = convert_error(input, e);
+        //     Err(FlatZincError::ParseError { msg }.into())
+        // }
         Err(e) => Err(FlatZincError::ParseError {
             msg: format!("{e}"),
         }
