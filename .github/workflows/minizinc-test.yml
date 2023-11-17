@@ -8,20 +8,25 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        clingconversion: [5.1.0]
+        clingconversion: [5.2.1]
         minizincversion: [2.8.0]
 
     steps:
       - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
 
-      - name: Install clingcon
+      - name: Conda install clingcon
+        shell: bash -l {0}
         run: |
-          sudo add-apt-repository ppa:potassco/wip
-          sudo apt-get update
-          sudo apt-get install clingcon=${{ matrix.clingconversion }}-focal6
+          conda install -c "potassco/label/dev" clingcon=${{matrix.clingconversion}}
 
       - name: Test clingcon
-        run: clingcon --version
+        shell: bash -l {0}
+        run: |
+          clingcon --version
 
       - name: Install MiniZinc
         run: |
@@ -59,7 +64,7 @@ jobs:
         run: |
           sudo apt-get install -y python3-pip
           pip3 install pytest
-          pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post5
+          pip3 install --extra-index-url https://test.pypi.org/simple/ clingcon==${{ matrix.clingconversion }}.post4
 
       - name: Test flatzingo
         run: |
