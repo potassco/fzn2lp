@@ -12,7 +12,7 @@ exclude = ["/.github"]
 
 [dependencies]
 # flatzinc = "0.3"
-flatzinc = { git = "https://github.com/potassco/flatzinc.git", branch = "st/winnow" }
+flatzinc = { git = "https://github.com/potassco/flatzinc.git", branch = "st/wip" }
 clap = { version = "3.1", features = ["derive"] }
 anyhow = "1.0"
 thiserror = "1.0"
