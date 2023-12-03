@@ -3,6 +3,7 @@ use flatzinc::*;
 use log::warn;
 use std::io::Write;
 use thiserror::Error;
+use flatzinc::ContextError;
 
 #[derive(Error, Debug)]
 pub enum FlatZincError {
@@ -335,7 +336,7 @@ pub fn write_fz_stmt(
     constraint_counter: &mut usize,
     level: &mut i32,
 ) -> Result<()> {
-    match statement::<ContextError<&str>>(&mut input) {
+    match flatzinc::parse_statement::<ContextError<&str>>(&mut input) {
         Ok(stmt) => {
             match stmt {
                 Stmt::Comment(s) => {
