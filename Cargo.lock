@@ -95,7 +95,7 @@ dependencies = [
 [[package]]
 name = "flatzinc"
 version = "0.3.20-dev"
-source = "git+https://github.com/potassco/flatzinc.git?branch=st/wip#37f2104224965a4238d5d1e55eb5ed8a186d17f2"
+source = "git+https://github.com/potassco/flatzinc.git?branch=st/wip#fe0c999607c80a6abf4f1d7817d18f8df9c3ddd2"
 dependencies = [
  "winnow",
 ]
@@ -358,9 +358,9 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "winnow"
-version = "0.5.19"
+version = "0.5.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "829846f3e3db426d4cee4510841b71a8e58aa2a76b1132579487ae430ccd9c7b"
+checksum = "b7e87b8dfbe3baffbe687eef2e164e32286eff31a5ee16463ce03d991643ec94"
 dependencies = [
  "memchr",
 ]
