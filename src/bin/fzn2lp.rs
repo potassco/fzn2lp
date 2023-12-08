@@ -11,17 +11,17 @@ use std::{
 /// Convert FlatZinc to ASP facts
 #[derive(Parser, Debug)]
 #[clap(name = "fzn2lp")]
-#[clap(version, author)]
+#[command(version, author)]
 struct Opt {
     /// Input file in flatzinc format
-    #[clap(name = "FILE", parse(from_os_str))]
+    #[arg(name = "FILE")]
     file: Option<PathBuf>,
 }
 
 fn main() {
     env_logger::builder().format_timestamp(None).init();
     if let Err(err) = run() {
-        error!("{:?}", err);
+        error!("{}", err);
         std::process::exit(1);
     }
 }
