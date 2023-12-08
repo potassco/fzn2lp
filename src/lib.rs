@@ -1,5 +1,10 @@
 use anyhow::Result;
-use flatzinc::*;
+use flatzinc::{
+    AnnExpr, Annotation, ArrayOfBoolExpr, ArrayOfFloatExpr, ArrayOfIntExpr, ArrayOfSetExpr,
+    BasicParType, BasicPredParType, BasicType, BasicVarType, BoolExpr, ConstraintItem, Expr,
+    FloatExpr, Goal, IndexSet, IntExpr, OptimizationType, ParDeclItem, PredIndexSet, PredParType,
+    PredicateItem, SetExpr, SetLiteral, SetLiteralExpr, SolveItem, Stmt, VarDeclItem,
+};
 use log::warn;
 use std::io::Write;
 use thiserror::Error;
