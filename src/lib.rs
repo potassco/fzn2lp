@@ -10,7 +10,7 @@ pub enum FlatZincError {
     MultipleSolveItems,
     #[error("No solve item")]
     NoSolveItem,
-    #[error("ParseError: {msg}")]
+    #[error("ParseError:\n{msg}")]
     ParseError { msg: String },
 }
 
