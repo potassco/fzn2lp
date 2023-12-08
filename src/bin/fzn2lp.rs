@@ -1,11 +1,10 @@
 use anyhow::Result;
 use clap::Parser;
-use fzn2lp::write_fz_stmt;
-use fzn2lp::FlatZincError;
+use fzn2lp::{write_fz_stmt, FlatZincError};
 use log::error;
-use std::fs;
 use std::{
-    io::{self, prelude::*},
+    fs,
+    io::{self, BufRead},
     path::PathBuf,
 };
 
