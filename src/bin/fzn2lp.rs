@@ -18,34 +18,6 @@ struct Opt {
     file: Option<PathBuf>,
 }
 
-pub enum Reader<'a> {
-    File(io::BufReader<fs::File>),
-    Stdin(io::StdinLock<'a>),
-}
-
-impl<'a> io::Read for Reader<'a> {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        match self {
-            Self::File(reader) => reader.read(buf),
-            Self::Stdin(guard) => guard.read(buf),
-        }
-    }
-}
-
-impl<'a> io::BufRead for Reader<'a> {
-    fn fill_buf(&mut self) -> io::Result<&[u8]> {
-        match self {
-            Self::File(reader) => reader.fill_buf(),
-            Self::Stdin(guard) => guard.fill_buf(),
-        }
-    }
-    fn consume(&mut self, amt: usize) {
-        match self {
-            Self::File(reader) => reader.consume(amt),
-            Self::Stdin(guard) => guard.consume(amt),
-        }
-    }
-}
 fn main() {
     env_logger::builder().format_timestamp(None).init();
     if let Err(err) = run() {
@@ -54,18 +26,15 @@ fn main() {
     }
 }
 fn run() -> Result<()> {
-    let opt = Opt::parse();
-
-    let stdin = io::stdin();
-    let input = match opt.file {
+    let mut stdin_lock = io::stdin().lock();
+    let mut file_reader;
+    let input: &mut dyn BufRead = match Opt::parse().file {
         Some(path) => {
             let file = fs::File::open(path)?;
-            Reader::File(io::BufReader::new(file))
+            file_reader = io::BufReader::new(file);
+            &mut file_reader
         }
-        None => {
-            let guard = stdin.lock();
-            Reader::Stdin(guard)
-        }
+        None => &mut stdin_lock,
     };
 
     let mut out = std::io::stdout();
