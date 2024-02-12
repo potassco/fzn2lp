@@ -1124,7 +1124,7 @@ fn write_output_var(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Resu
 fn write_output_array(mut buf: impl Write, id: &str, annos: &[Annotation]) -> Result<()> {
     for a in annos {
         if a.id == "output_array" {
-            match a.expressions.get(0) {
+            match a.expressions.first() {
                 Some(AnnExpr::Expr(Expr::ArrayOfSet(v))) => {
                     for (pos, e) in v.iter().enumerate() {
                         match e {
