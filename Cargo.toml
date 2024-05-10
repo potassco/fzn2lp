@@ -1,6 +1,6 @@
 [package]
 name = "fzn2lp"
-version = "0.1.5"
+version = "0.1.6-dev"
 publish = false
 authors = ["Sven Thiele <sthiele78@gmail.com>"]
 description = "A converter from FlatZinc into an ASP fact format "
