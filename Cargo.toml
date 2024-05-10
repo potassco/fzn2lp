@@ -11,10 +11,9 @@ edition = "2021"
 exclude = ["/.github"]
 
 [dependencies]
-# flatzinc = "0.3"
-flatzinc = { git = "https://github.com/potassco/flatzinc.git", branch = "st/wip" }
+flatzinc = "0.3.20"
 clap = { version = "4.0", features = ["derive"] }
 anyhow = "1.0"
 thiserror = "1.0"
 log = "0.4"
-env_logger = "0.8.4"
+env_logger = "0.11"
